@@ -1,16 +1,14 @@
-package org.example.demo.model;
+package org.example.demo.model.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserTable {
-
-    private String name;
-    private String id;
+@NoArgsConstructor
+public class Patient {
+    private String identity;
+    private String realname;
     private String password;
-
 }

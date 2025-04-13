@@ -7,6 +7,10 @@ public class ContractConstants {
 
     public static final String HelloWorldGmBinary;
 
+    public static final String UserAbi;
+
+    public static final String UserBinary;
+
     static {
         try {
             HelloWorldAbi =
@@ -24,6 +28,12 @@ public class ContractConstants {
                             Thread.currentThread()
                                     .getContextClassLoader()
                                     .getResource("bin/HelloWorldSM.bin"));
+            UserAbi = org.apache.commons.io.IOUtils.toString(Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResource("abi/User.abi"));
+            UserBinary = org.apache.commons.io.IOUtils.toString(Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResource("bin/User.bin"));    
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

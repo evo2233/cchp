@@ -3,6 +3,8 @@ package org.example.demo.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +22,8 @@ public class CommonResponse {
     }
 
     public static CommonResponse fail(String code, Exception ex) {
-        return new CommonResponse(code, ex.getMessage(), null);
+        Map<String, String> errorData = new HashMap<>();
+        errorData.put("error", ex.getMessage());
+        return new CommonResponse(code, ex.getMessage(), errorData);
     }
 }

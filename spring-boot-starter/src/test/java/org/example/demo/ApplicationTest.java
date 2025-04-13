@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class Demos {
+public class ApplicationTest {
 
     @Autowired private Client client;
 

@@ -48,10 +48,20 @@ dependencies {
     implementation 'junit:junit:4.13.1'
     compile logger
     compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:3.0.0')
+
     compile ('org.springframework.boot:spring-boot-starter-web')
+    // implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'// DTO verify
+
+    // lombok
     compileOnly ('org.projectlombok:lombok')
     annotationProcessor ('org.projectlombok:lombok')
 
+    // MySQL Mybatis
+    implementation 'mysql:mysql-connector-java:8.0.28'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
+
+    // test
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }

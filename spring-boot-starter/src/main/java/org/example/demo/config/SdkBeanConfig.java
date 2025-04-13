@@ -53,6 +53,10 @@ public class SdkBeanConfig {
                 || contractConfig.getHelloWorldAddress().isEmpty()) {
             contractConfig.setHelloWorldAddress(deploy(client));
         }
+        if (contractConfig.getUserAddress() == null
+                || contractConfig.getUserAddress().isEmpty()) {
+            contractConfig.setUserAddress(deployContract(client, ContractConstants.UserAbi, ContractConstants.UserBinary));
+        }
         return client;
     }
 
@@ -71,6 +75,22 @@ public class SdkBeanConfig {
             return receipt.getContractAddress();
         } else {
             throw new RuntimeException("Deploy failed");
+        }
+    }
+
+    /*Universal contract deploy function*/
+    private String deployContract(Client client, String abi, String bin) throws Exception {
+        AssembleTransactionProcessor txProcessor =
+            TransactionProcessorFactory.createAssembleTransactionProcessor(
+                    client, client.getCryptoSuite().getCryptoKeyPair());
+    
+        TransactionReceipt receipt =
+            txProcessor.deployAndGetResponse(abi, bin, Arrays.asList()).getTransactionReceipt();
+    
+        if (receipt.isStatusOK()) {
+            return receipt.getContractAddress();
+        } else {
+            throw new RuntimeException("Contract deploy failed: " + receipt.getMessage());
         }
     }
 

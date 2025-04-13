@@ -9,4 +9,5 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "contract")
 public class ContractConfig {
     private String helloWorldAddress;
+    private String userAddress;
 }
