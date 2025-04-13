@@ -14,7 +14,6 @@ targetCompatibility = 1.8
 group = 'org.example'
 version = '1.0.0-SNAPSHOT'
 
-
 repositories {
     mavenLocal()
     mavenCentral()
@@ -38,10 +37,7 @@ configurations.all {
 def log4j_version="2.18.0"
 List logger = [
         "org.apache.logging.log4j:log4j-api:$log4j_version",
-    //    "org.apache.logging.log4j:log4j-core:$log4j_version",
-    //    "org.apache.logging.log4j:log4j-slf4j-impl:$log4j_version",
-        "org.apache.logging.log4j:log4j-to-slf4j:$log4j_version",
-    //    "org.apache.logging.log4j:log4j-web:$log4j_version"
+        "org.apache.logging.log4j:log4j-to-slf4j:$log4j_version"
 ]
 
 dependencies {
@@ -49,9 +45,8 @@ dependencies {
     compile logger
     compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:3.0.0')
 
-    compile ('org.springframework.boot:spring-boot-starter-web')
-    // implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'// DTO verify
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // lombok
     compileOnly ('org.projectlombok:lombok')
@@ -61,6 +56,11 @@ dependencies {
     implementation 'mysql:mysql-connector-java:8.0.28'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
 
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
     // test
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -68,7 +68,6 @@ dependencies {
     testImplementation ('org.junit.jupiter:junit-jupiter-api:5.6.1')
     testRuntimeOnly ('org.junit.jupiter:junit-jupiter-engine:5.6.1')
 }
-
 
 sourceSets {
     main {
@@ -80,6 +79,7 @@ sourceSets {
         }
     }
 }
+
 test {
     useJUnitPlatform()
 }
