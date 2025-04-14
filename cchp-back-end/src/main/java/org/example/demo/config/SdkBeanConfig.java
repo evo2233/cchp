@@ -16,15 +16,20 @@ import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Configuration
 @Slf4j
 public class SdkBeanConfig {
 
+    private static final String CONTRACT_ADDRESS_FILE = "contract_addresses.properties";
+
     @Autowired private SystemConfig systemConfig;
-
     @Autowired private BcosConfig bcosConfig;
-
     @Autowired private ContractConfig contractConfig;
 
     @Bean
@@ -49,15 +54,61 @@ public class SdkBeanConfig {
                     client.getCryptoSuite().getCryptoKeyPair().getAddress());
         }
 
-        if (contractConfig.getHelloWorldAddress() == null
-                || contractConfig.getHelloWorldAddress().isEmpty()) {
-            contractConfig.setHelloWorldAddress(deploy(client));
+        // 尝试从文件加载合约地址
+        loadContractAddresses();
+
+        // 如果合约地址为空，则部署新合约
+        if (contractConfig.getHelloWorldAddress() == null || contractConfig.getHelloWorldAddress().isEmpty()) {
+            String address = deploy(client);
+            contractConfig.setHelloWorldAddress(address);
+            saveContractAddresses();
         }
-        if (contractConfig.getUserAddress() == null
-                || contractConfig.getUserAddress().isEmpty()) {
-            contractConfig.setUserAddress(deployContract(client, ContractConstants.UserAbi, ContractConstants.UserBinary));
+        
+        if (contractConfig.getUserAddress() == null || contractConfig.getUserAddress().isEmpty()) {
+            String address = deployContract(client, ContractConstants.UserAbi, ContractConstants.UserBinary);
+            contractConfig.setUserAddress(address);
+            saveContractAddresses();
         }
+
         return client;
+    }
+
+    private void loadContractAddresses() {
+        try {
+            File file = new File(CONTRACT_ADDRESS_FILE);
+            if (file.exists()) {
+                String content = new String(Files.readAllBytes(Paths.get(CONTRACT_ADDRESS_FILE)));
+                String[] lines = content.split("\n");
+                for (String line : lines) {
+                    String[] parts = line.split("=");
+                    if (parts.length == 2) {
+                        String key = parts[0].trim();
+                        String value = parts[1].trim();
+                        if ("helloWorldAddress".equals(key)) {
+                            contractConfig.setHelloWorldAddress(value);
+                        } else if ("userAddress".equals(key)) {
+                            contractConfig.setUserAddress(value);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.warn("Failed to load contract addresses from file", e);
+        }
+    }
+
+    private void saveContractAddresses() {
+        try {
+            StringBuilder content = new StringBuilder();
+            content.append("helloWorldAddress=").append(contractConfig.getHelloWorldAddress()).append("\n");
+            content.append("userAddress=").append(contractConfig.getUserAddress()).append("\n");
+
+            try (FileWriter writer = new FileWriter(CONTRACT_ADDRESS_FILE)) {
+                writer.write(content.toString());
+            }
+        } catch (IOException e) {
+            log.error("Failed to save contract addresses to file", e);
+        }
     }
 
     private String deploy(Client client) throws Exception {

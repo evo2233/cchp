@@ -54,3 +54,4 @@ bin/
 
 # Environment files
 src/main/resources/application-dev.properties
+contract_addresses.properties
