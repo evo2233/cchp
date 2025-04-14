@@ -7,5 +7,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ContractConfig {
     private String helloWorldAddress = "";
-    private String userAddress = "";
+    private String patientAddress = "";
 }

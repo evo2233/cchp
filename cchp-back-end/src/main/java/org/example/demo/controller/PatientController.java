@@ -2,6 +2,7 @@ package org.example.demo.controller;
 
 import org.example.demo.authentication.ArgumentResolver;
 import org.example.demo.model.CommonResponse;
+import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
 import org.example.demo.model.vo.PatientInfoVO;
 import org.example.demo.service.PatientService;
@@ -34,10 +35,10 @@ public class PatientController {
 
     @PostMapping("/login")
     public ResponseEntity<CommonResponse> patientLogin(
-            @Valid @RequestBody PatientRegistrationDTO patientRegistrationDTO
+            @Valid @RequestBody PatientLoginDTO patientLoginDTO
     ){
         try{
-            String token = patientservice.getToken(patientRegistrationDTO);
+            String token = patientservice.getToken(patientLoginDTO);
             return ResponseEntity.ok(CommonResponse.ok(token));
         } catch(Exception e){
             return ResponseEntity.badRequest().body(CommonResponse.fail("400", e));

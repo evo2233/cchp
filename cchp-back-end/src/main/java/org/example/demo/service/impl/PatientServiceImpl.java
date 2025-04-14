@@ -5,6 +5,7 @@ import org.example.demo.config.ContractConfig;
 import org.example.demo.constants.ContractConstants;
 import org.example.demo.mapper.PatientMapper;
 import org.example.demo.model.bo.PatientRegisterInputBO;
+import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
 import org.example.demo.model.entity.Patient;
 import org.example.demo.model.vo.PatientInfoVO;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public String getToken(PatientRegistrationDTO patientdto) throws Exception {
+    public String getToken(PatientLoginDTO patientdto) throws Exception {
         Patient patient = patientMapper.getPatient(
                 patientdto.getIdentity(),
                 patientdto.getRealname(),
@@ -105,7 +107,7 @@ public class PatientServiceImpl implements PatientService {
     public void init() throws Exception {
         this.txProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
                 this.client, this.client.getCryptoSuite().getCryptoKeyPair());
-        this.address = contractConfig.getUserAddress();
+        this.address = contractConfig.getPatientAddress();
     }
 
     public void registerPatient(PatientRegistrationDTO dto) throws Exception {
@@ -116,22 +118,27 @@ public class PatientServiceImpl implements PatientService {
         // 保存私钥到文件
         savePrivateKeyToFile(userKeyPair.getHexPrivateKey(), dto.getIdentity());
         
+        // 将LocalDate转换为字符串格式
+        String birthdateStr = dto.getBirthdate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        
         // 调用合约注册用户
         PatientRegisterInputBO input = new PatientRegisterInputBO(
                 userAddress,
+                dto.getIdentity(),
                 dto.getRealname(),
-                dto.getIdentity()
+                dto.getGendercode(),
+                birthdateStr
         );
         
         TransactionResponse response = this.txProcessor.sendTransactionAndGetResponse(
                 this.address, 
-                ContractConstants.UserAbi, 
-                "registerUser", 
+                ContractConstants.PatientAbi, 
+                "registerPatient", 
                 input.toArgs()
         );
         
         if (!response.getTransactionReceipt().isStatusOK()) {
-            throw new RuntimeException("用户注册失败: " + response.getTransactionReceipt().getMessage());
+            throw new RuntimeException("患者注册失败: " + response.getTransactionReceipt().getMessage());
         }
     }
 
@@ -154,7 +161,7 @@ public class PatientServiceImpl implements PatientService {
         CallResponse response = this.txProcessor.sendCall(
                 userAddress,
                 this.address,
-                ContractConstants.UserAbi,
+                ContractConstants.PatientAbi,
                 "getPatientInfo",
                 params
         );
@@ -165,10 +172,12 @@ public class PatientServiceImpl implements PatientService {
 
         // 解析返回结果
         List<Type> results = response.getResults();
-        String realName = ((Utf8String) results.get(0)).getValue();
-        String identity = ((Utf8String) results.get(1)).getValue();
+        String identity = ((Utf8String) results.get(0)).getValue();
+        String realName = ((Utf8String) results.get(1)).getValue();
+        String genderCode = ((Utf8String) results.get(2)).getValue();
+        String birthdate = ((Utf8String) results.get(3)).getValue();
 
-        return new org.example.demo.model.vo.PatientInfoVO(realName, identity, userAddress);
+        return new org.example.demo.model.vo.PatientInfoVO(identity, realName, genderCode, birthdate);
     }
 
     private void savePrivateKeyToFile(String privateKey, String identity) throws IOException {

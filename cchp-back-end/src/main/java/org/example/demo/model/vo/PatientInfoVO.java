@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PatientInfoVO {
-    private String realName;
     private String identity;
-    private String address;
-} 
+    private String realname;
+    private String gendercode;
+    private String birthdate;
+}

@@ -63,10 +63,10 @@ public class SdkBeanConfig {
             contractConfig.setHelloWorldAddress(address);
             saveContractAddresses();
         }
-        
-        if (contractConfig.getUserAddress() == null || contractConfig.getUserAddress().isEmpty()) {
-            String address = deployContract(client, ContractConstants.UserAbi, ContractConstants.UserBinary);
-            contractConfig.setUserAddress(address);
+
+        if(contractConfig.getPatientAddress() == null || contractConfig.getPatientAddress().isEmpty()) {
+            String address = deployContract(client, ContractConstants.PatientAbi, ContractConstants.PatientBinary);
+            contractConfig.setPatientAddress(address);
             saveContractAddresses();
         }
 
@@ -86,8 +86,8 @@ public class SdkBeanConfig {
                         String value = parts[1].trim();
                         if ("helloWorldAddress".equals(key)) {
                             contractConfig.setHelloWorldAddress(value);
-                        } else if ("userAddress".equals(key)) {
-                            contractConfig.setUserAddress(value);
+                        } else if ("patientAddress".equals(key)) {
+                            contractConfig.setPatientAddress(value);
                         }
                     }
                 }
@@ -101,7 +101,7 @@ public class SdkBeanConfig {
         try {
             StringBuilder content = new StringBuilder();
             content.append("helloWorldAddress=").append(contractConfig.getHelloWorldAddress()).append("\n");
-            content.append("userAddress=").append(contractConfig.getUserAddress()).append("\n");
+            content.append("patientAddress=").append(contractConfig.getPatientAddress()).append("\n");
 
             try (FileWriter writer = new FileWriter(CONTRACT_ADDRESS_FILE)) {
                 writer.write(content.toString());
