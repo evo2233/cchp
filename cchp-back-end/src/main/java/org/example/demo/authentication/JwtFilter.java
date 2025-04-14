@@ -17,7 +17,9 @@ public class JwtFilter implements Filter {
 
     private final List<String> whitelist = Arrays.asList(
             "/patient/login",
-            "/patient/register"
+            "/patient/register",
+            "/hello/set",
+            "/hello/get"
     );
 
     @Override
