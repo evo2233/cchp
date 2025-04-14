@@ -12,14 +12,18 @@ import java.util.List;
 @AllArgsConstructor
 public class PatientRegisterInputBO {
     private String userAddr;
-    private String realName;
-    private String idCard;
+    private String identity;
+    private String realname;
+    private String gendercode;
+    private String birthdate;
 
     public List<Object> toArgs() {
         List<Object> args = new ArrayList<>();
         args.add(userAddr);
-        args.add(realName);
-        args.add(idCard);
+        args.add(identity);
+        args.add(realname);
+        args.add(gendercode);
+        args.add(birthdate);
         return args;
     }
 }
