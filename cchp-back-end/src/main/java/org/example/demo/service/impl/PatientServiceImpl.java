@@ -1,9 +1,12 @@
 package org.example.demo.service.impl;
 
+import org.example.demo.authentication.JwtUtils;
 import org.example.demo.config.ContractConfig;
 import org.example.demo.constants.ContractConstants;
+import org.example.demo.mapper.PatientMapper;
 import org.example.demo.model.bo.PatientRegisterInputBO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
+import org.example.demo.model.entity.Patient;
 import org.example.demo.model.vo.PatientInfoVO;
 import org.example.demo.service.PatientService;
 import org.fisco.bcos.sdk.v3.client.Client;
@@ -25,13 +28,71 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PatientServiceImpl implements PatientService {
 
+    @Autowired
+    private PatientMapper patientMapper;
+
+    @Override
+    public void addPatient(PatientRegistrationDTO patientdto) throws Exception {
+        Patient patient = patientMapper.getPatient(
+                patientdto.getIdentity(),
+                patientdto.getRealname(),
+                patientdto.getPassword()
+        );
+        if(patient != null) {
+            throw new Exception("Error: patient already exists");
+        }
+
+        Patient _patient = new Patient();
+        _patient.setIdentity(patientdto.getIdentity());
+        _patient.setRealname(patientdto.getRealname());
+        _patient.setPassword(patientdto.getPassword());
+        patientMapper.insertPatient(_patient);
+
+        registerPatient(patientdto);
+    }
+
+    @Override
+    public String getToken(PatientRegistrationDTO patientdto) throws Exception {
+        Patient patient = patientMapper.getPatient(
+                patientdto.getIdentity(),
+                patientdto.getRealname(),
+                patientdto.getPassword()
+        );
+        if(patient == null) {
+            throw new Exception("Error: no such patient");
+        }
+        // generate token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", patientdto.getIdentity());
+        String token = JwtUtils.generateToken(claims);
+        if(token == null) {
+            throw new Exception("Error: token is null");
+        }
+        return token;
+    }
+
+    @Override
+    public PatientInfoVO getInfo(String identity) throws Exception {
+        Patient patient = patientMapper.getPatientById(identity);
+        if (patient == null) {
+            throw new Exception("Error: patient not found");
+        }
+        return getPatientInfo(identity);
+    }
+
+    /*
+     * 后端与区块链交互部分
+     * */
+
     private String address;
-    
+
     @Autowired 
     private Client client;
     
@@ -47,7 +108,6 @@ public class PatientServiceImpl implements PatientService {
         this.address = contractConfig.getUserAddress();
     }
 
-    @Override
     public void registerPatient(PatientRegistrationDTO dto) throws Exception {
         // 生成新的密钥对
         CryptoKeyPair userKeyPair = new ECDSAKeyPair().generateKeyPair();
@@ -75,8 +135,7 @@ public class PatientServiceImpl implements PatientService {
         }
     }
 
-    @Override
-    public PatientInfoVO getPatientInfo(String identityFile) throws Exception {
+    public org.example.demo.model.vo.PatientInfoVO getPatientInfo(String identityFile) throws Exception {
         // 从私钥文件中读取私钥
         String privateKey = readPrivateKeyFromFile(identityFile);
         if (privateKey == null) {
@@ -109,7 +168,7 @@ public class PatientServiceImpl implements PatientService {
         String realName = ((Utf8String) results.get(0)).getValue();
         String identity = ((Utf8String) results.get(1)).getValue();
 
-        return new PatientInfoVO(realName, identity, userAddress);
+        return new org.example.demo.model.vo.PatientInfoVO(realName, identity, userAddress);
     }
 
     private void savePrivateKeyToFile(String privateKey, String identity) throws IOException {
