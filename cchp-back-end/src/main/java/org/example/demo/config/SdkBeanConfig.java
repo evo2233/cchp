@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.example.demo.constants.ContractConstants;
+import org.example.demo.service.AdminService;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
 import org.fisco.bcos.sdk.v3.config.model.ConfigProperty;
-import org.fisco.bcos.sdk.v3.model.CryptoType;
 import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
 import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
@@ -31,6 +31,10 @@ public class SdkBeanConfig {
     @Autowired private SystemConfig systemConfig;
     @Autowired private BcosConfig bcosConfig;
     @Autowired private ContractConfig contractConfig;
+
+    private final AdminService adminService;
+    @Autowired
+    SdkBeanConfig(AdminService adminService) { this.adminService = adminService; }
 
     @Bean
     public Client client() throws Exception {
@@ -58,16 +62,20 @@ public class SdkBeanConfig {
         loadContractAddresses();
 
         // 如果合约地址为空，则部署新合约
-        if (contractConfig.getHelloWorldAddress() == null || contractConfig.getHelloWorldAddress().isEmpty()) {
-            String address = deploy(client);
-            contractConfig.setHelloWorldAddress(address);
+        if(contractConfig.getPatientContractAddress() == null || contractConfig.getPatientContractAddress().isEmpty()) {
+            String address = deployContract(client, ContractConstants.PatientAbi, ContractConstants.PatientBinary);
+            contractConfig.setPatientContractAddress(address);
             saveContractAddresses();
         }
 
-        if(contractConfig.getPatientAddress() == null || contractConfig.getPatientAddress().isEmpty()) {
-            String address = deployContract(client, ContractConstants.PatientAbi, ContractConstants.PatientBinary);
-            contractConfig.setPatientAddress(address);
+        if(contractConfig.getInstitutionContractAddress() == null || contractConfig.getInstitutionContractAddress().isEmpty()) {
+            String address = deployContract(client, ContractConstants.InstitutionAbi, ContractConstants.InstitutionBinary);
+            contractConfig.setInstitutionContractAddress(address);
             saveContractAddresses();
+
+            // 获取部署者的地址并初始化管理员
+            String deployerAddress = client.getCryptoSuite().getCryptoKeyPair().getAddress();
+            adminService.initializeAdmin(deployerAddress);
         }
 
         return client;
@@ -84,10 +92,10 @@ public class SdkBeanConfig {
                     if (parts.length == 2) {
                         String key = parts[0].trim();
                         String value = parts[1].trim();
-                        if ("helloWorldAddress".equals(key)) {
-                            contractConfig.setHelloWorldAddress(value);
-                        } else if ("patientAddress".equals(key)) {
-                            contractConfig.setPatientAddress(value);
+                        if ("patientContractAddress".equals(key)) {
+                            contractConfig.setPatientContractAddress(value);
+                        } else if ("institutionContractAddress".equals(key)) {
+                            contractConfig.setInstitutionContractAddress(value);
                         }
                     }
                 }
@@ -100,32 +108,14 @@ public class SdkBeanConfig {
     private void saveContractAddresses() {
         try {
             StringBuilder content = new StringBuilder();
-            content.append("helloWorldAddress=").append(contractConfig.getHelloWorldAddress()).append("\n");
-            content.append("patientAddress=").append(contractConfig.getPatientAddress()).append("\n");
+            content.append("patientAddress=").append(contractConfig.getPatientContractAddress()).append("\n");
+            content.append("institutionAddress=").append(contractConfig.getInstitutionContractAddress()).append("\n");
 
             try (FileWriter writer = new FileWriter(CONTRACT_ADDRESS_FILE)) {
                 writer.write(content.toString());
             }
         } catch (IOException e) {
             log.error("Failed to save contract addresses to file", e);
-        }
-    }
-
-    private String deploy(Client client) throws Exception {
-        AssembleTransactionProcessor txProcessor =
-                TransactionProcessorFactory.createAssembleTransactionProcessor(
-                        client, client.getCryptoSuite().getCryptoKeyPair());
-        String abi = ContractConstants.HelloWorldAbi;
-        String bin =
-                (client.getCryptoSuite().getCryptoTypeConfig() == CryptoType.ECDSA_TYPE)
-                        ? ContractConstants.HelloWorldBinary
-                        : ContractConstants.HelloWorldGmBinary;
-        TransactionReceipt receipt =
-                txProcessor.deployAndGetResponse(abi, bin, Arrays.asList()).getTransactionReceipt();
-        if (receipt.isStatusOK()) {
-            return receipt.getContractAddress();
-        } else {
-            throw new RuntimeException("Deploy failed");
         }
     }
 

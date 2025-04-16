@@ -8,12 +8,13 @@ import org.example.demo.model.entity.Patient;
 
 @Mapper
 public interface PatientMapper {
-    // 查找用户信息
+    // 查找用户
     @Select("select * from Patient where identity=#{identity} and realname=#{realname} and password=#{password}")
     public Patient getPatient(@Param("identity") String identity,
                               @Param("realname") String realname,
                               @Param("password") String password);
 
+    // 查找用户信息
     @Select("select * from Patient where identity=#{identity}")
     public Patient getPatientById(String identity);
 

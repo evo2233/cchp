@@ -107,7 +107,7 @@ public class PatientServiceImpl implements PatientService {
     public void init() throws Exception {
         this.txProcessor = TransactionProcessorFactory.createAssembleTransactionProcessor(
                 this.client, this.client.getCryptoSuite().getCryptoKeyPair());
-        this.address = contractConfig.getPatientAddress();
+        this.address = contractConfig.getPatientContractAddress();
     }
 
     public void registerPatient(PatientRegistrationDTO dto) throws Exception {

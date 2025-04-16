@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 public class ContractConfig {
-    private String helloWorldAddress = "";
-    private String patientAddress = "";
+    private String patientContractAddress = "";
+    private String institutionContractAddress = "";
 }
