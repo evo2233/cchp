@@ -18,7 +18,8 @@ public class JwtFilter implements Filter {
     private final List<String> whitelist = Arrays.asList(
             "/patient/login",
             "/patient/register",
-            "/admin/login",
+            "/admin",
+            "/doctor/login",
             "/inpatient/record"
     );
 
@@ -30,8 +31,8 @@ public class JwtFilter implements Filter {
         String requestURI = request.getRequestURI();
 
         for (String path : whitelist) {
-            if (requestURI.contains(path)) {
-                log.info("Allow request for: {}", path);
+            if (requestURI.startsWith(path)) {
+                log.info("Allow request for: {}", requestURI);
                 filterChain.doFilter(request, response);
                 return;
             }

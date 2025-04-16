@@ -92,9 +92,9 @@ public class SdkBeanConfig {
                     if (parts.length == 2) {
                         String key = parts[0].trim();
                         String value = parts[1].trim();
-                        if ("patientContractAddress".equals(key)) {
+                        if ("patientAddress".equals(key)) {
                             contractConfig.setPatientContractAddress(value);
-                        } else if ("institutionContractAddress".equals(key)) {
+                        } else if ("institutionAddress".equals(key)) {
                             contractConfig.setInstitutionContractAddress(value);
                         }
                     }
