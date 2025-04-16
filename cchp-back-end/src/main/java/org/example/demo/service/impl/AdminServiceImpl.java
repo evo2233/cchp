@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminServiceImpl implements AdminService {
 
+    private static String admin_name = "admin0";
+    private static String admin_password = "123";
+
     @Autowired
     private AdminMapper adminMapper;
     
@@ -27,12 +30,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void initializeAdmin(String address) {
         // 检查是否已存在管理员
-        Admin existingAdmin = adminMapper.getAdmin("admin", "123");
+        Admin existingAdmin = adminMapper.getAdmin(admin_name, admin_password);
         if (existingAdmin == null) {
             // 创建默认管理员
             Admin admin = new Admin();
-            admin.setUsername("admin");
-            admin.setPassword("123");
+            admin.setUsername(admin_name);
+            admin.setPassword(admin_password);
             admin.setAddress(address);
             adminMapper.addAdmin(admin);
         }

@@ -2,7 +2,7 @@ package org.example.demo.service;
 
 import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
-import org.example.demo.model.vo.PatientInfoVO;
+import org.example.demo.model.dto.PatientInfoVO;
 
 public interface PatientService {
     void addPatient(PatientRegistrationDTO patientdto) throws Exception;

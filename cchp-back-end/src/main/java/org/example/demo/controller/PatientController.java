@@ -4,7 +4,7 @@ import org.example.demo.authentication.ArgumentResolver;
 import org.example.demo.model.CommonResponse;
 import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
-import org.example.demo.model.vo.PatientInfoVO;
+import org.example.demo.model.dto.PatientInfoVO;
 import org.example.demo.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,5 +54,4 @@ public class PatientController {
             return ResponseEntity.badRequest().body(CommonResponse.fail("400", e));
         }
     }
-
 }
