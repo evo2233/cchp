@@ -1,5 +1,6 @@
 package org.example.demo.controller;
 
+import org.example.demo.authentication.ArgumentResolver;
 import org.example.demo.model.entity.InpatientRecord;
 import org.example.demo.model.entity.CourseRecordDetail;
 import org.example.demo.service.InpatientService;
@@ -19,8 +20,9 @@ public class InpatientController {
 
     // 插入住院记录
     @PostMapping("/record")
-    public ResponseEntity<?> insertInpatientRecord(@RequestBody InpatientRecord record) {
-        int result = inpatientService.insertInpatientRecord(record);
+    public ResponseEntity<?> insertInpatientRecord(@RequestBody InpatientRecord record,
+                                                   @ArgumentResolver.PatientIdentity String identity) {
+        int result = inpatientService.insertInpatientRecord(record, identity);
         if (result > 0) {
             return ResponseEntity.ok().body("住院记录添加成功");
         }
@@ -61,15 +63,16 @@ public class InpatientController {
 
     // 修改住院记录
     @PutMapping("/record")
-    public ResponseEntity<?> updateInpatientRecord(@RequestBody InpatientRecord record) {
-        int result = inpatientService.updateInpatientRecord(record);
+    public ResponseEntity<?> updateInpatientRecord(@RequestBody InpatientRecord record,
+                                                   @ArgumentResolver.PatientIdentity String identity) {
+        int result = inpatientService.updateInpatientRecord(record, identity);
         if (result > 0) {
             return ResponseEntity.ok().body("住院记录更新成功");
         }
         return ResponseEntity.badRequest().body("住院记录更新失败");
     }
 
-    // 修改病程记录
+        // 修改病程记录
     @PutMapping("/course-record")
     public ResponseEntity<?> updateCourseRecordDetail(@RequestBody CourseRecordDetail detail) {
         int result = inpatientService.updateCourseRecordDetail(detail);

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface InpatientService {
     // 插入住院记录
-    int insertInpatientRecord(InpatientRecord record);
+    int insertInpatientRecord(InpatientRecord record, String identity);
 
     // 插入病程记录
     int insertCourseRecordDetail(CourseRecordDetail detail);
@@ -19,7 +19,7 @@ public interface InpatientService {
     int deleteCourseRecordDetail(Integer admissionRecordID, String recordDateTime);
 
     // 修改住院记录
-    int updateInpatientRecord(InpatientRecord record);
+    int updateInpatientRecord(InpatientRecord record, String identity);
 
     // 修改病程记录
     int updateCourseRecordDetail(CourseRecordDetail detail);
