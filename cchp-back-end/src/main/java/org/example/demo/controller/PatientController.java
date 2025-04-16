@@ -4,13 +4,17 @@ import org.example.demo.authentication.ArgumentResolver;
 import org.example.demo.model.CommonResponse;
 import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
-import org.example.demo.model.vo.PatientInfoVO;
+import org.example.demo.model.dto.PatientInfoVO;
+import org.example.demo.model.entity.CourseRecordDetail;
+import org.example.demo.model.entity.InpatientRecord;
+import org.example.demo.service.InpatientService;
 import org.example.demo.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/patient")
@@ -18,8 +22,13 @@ public class PatientController {
 
     private final PatientService patientservice;
 
+    private final InpatientService inpatientservice;
+
     @Autowired
-    private PatientController(PatientService _patientService) { this.patientservice = _patientService; }
+    private PatientController(PatientService _patientService, InpatientService _inpatientService) {
+        this.patientservice = _patientService;
+        this.inpatientservice = _inpatientService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<CommonResponse> patientRegister(
@@ -55,4 +64,23 @@ public class PatientController {
         }
     }
 
+    // 根据条件查询住院记录 指定identity
+    @GetMapping("/inpatient-records")
+    public ResponseEntity<List<InpatientRecord>> selectInpatientRecords(
+            @RequestParam(required = false) String institutionCode,
+            @RequestParam(required = false) String residentHealthCardID,
+            @RequestParam(required = false) String diagnosisDate,
+            @ArgumentResolver.PatientIdentity String identity) {
+        List<InpatientRecord> records = inpatientservice.selectInpatientRecords(
+                institutionCode, identity, diagnosisDate);
+        return ResponseEntity.ok(records);
+    }
+
+    // 根据住院记录ID查询病程记录
+    @GetMapping("/course-records/{admissionRecordID}")
+    public ResponseEntity<List<CourseRecordDetail>> getCourseRecordDetails(
+            @PathVariable Integer admissionRecordID) {
+        List<CourseRecordDetail> details = inpatientservice.getCourseRecordDetails(admissionRecordID);
+        return ResponseEntity.ok(details);
+    }
 }

@@ -27,8 +27,8 @@ contract Institution {
     }
 
     // 修饰符：只有管理员可以调用
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can call this function");
+    modifier onlyAdmin(address _adminAddress) {
+        require(_adminAddress == admin, "Only admin can call this function");
         _;
     }
 
@@ -36,8 +36,9 @@ contract Institution {
     function authorizeInstitution(
         string memory institutionCode,
         string memory institutionName,
-        address institutionAddress
-    ) public onlyAdmin {
+        address institutionAddress,
+        address _adminAddress
+    ) public onlyAdmin(_adminAddress) {
         require(!institutions[institutionCode].isAuthorized, "Institution already authorized");
         require(bytes(addressToCode[institutionAddress]).length == 0, "Address already associated with an institution");
 
@@ -54,7 +55,10 @@ contract Institution {
     }
 
     // 撤销医疗机构授权
-    function revokeInstitution(string memory institutionCode) public onlyAdmin {
+    function revokeInstitution(
+        string memory institutionCode,
+        address _adminAddress
+    ) public onlyAdmin(_adminAddress) {
         require(institutions[institutionCode].isAuthorized, "Institution not found or already revoked");
         
         institutions[institutionCode].isAuthorized = false;

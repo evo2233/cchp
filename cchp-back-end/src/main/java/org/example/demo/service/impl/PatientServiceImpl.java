@@ -8,7 +8,7 @@ import org.example.demo.model.bo.PatientRegisterInputBO;
 import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
 import org.example.demo.model.entity.Patient;
-import org.example.demo.model.vo.PatientInfoVO;
+import org.example.demo.model.dto.PatientInfoVO;
 import org.example.demo.service.PatientService;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
@@ -142,7 +142,7 @@ public class PatientServiceImpl implements PatientService {
         }
     }
 
-    public org.example.demo.model.vo.PatientInfoVO getPatientInfo(String identityFile) throws Exception {
+    public PatientInfoVO getPatientInfo(String identityFile) throws Exception {
         // 从私钥文件中读取私钥
         String privateKey = readPrivateKeyFromFile(identityFile);
         if (privateKey == null) {
@@ -177,7 +177,7 @@ public class PatientServiceImpl implements PatientService {
         String genderCode = ((Utf8String) results.get(2)).getValue();
         String birthdate = ((Utf8String) results.get(3)).getValue();
 
-        return new org.example.demo.model.vo.PatientInfoVO(identity, realName, genderCode, birthdate);
+        return new PatientInfoVO(identity, realName, genderCode, birthdate);
     }
 
     private void savePrivateKeyToFile(String privateKey, String identity) throws IOException {

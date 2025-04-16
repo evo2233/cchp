@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.demo.mapper.InpatientMapper">
+    
+    <!-- 插入住院记录 -->
+    <insert id="insertInpatientRecord" parameterType="org.example.demo.model.entity.InpatientRecord" useGeneratedKeys="true" keyProperty="admissionRecordID">
+        INSERT INTO InpatientRecord (
+            ResidentHealthCardID,
+            InstitutionCode,
+            AdmissionNumber,
+            AdmissionConditionCode,
+            TotalHospitalizationCost,
+            DiagnosisDate
+        ) VALUES (
+            #{residentHealthCardID},
+            #{institutionCode},
+            #{admissionNumber},
+            #{admissionConditionCode},
+            #{totalHospitalizationCost},
+            #{diagnosisDate}
+        )
+    </insert>
+
+    <!-- 插入病程记录 -->
+    <insert id="insertCourseRecordDetail" parameterType="org.example.demo.model.entity.CourseRecordDetail">
+        INSERT INTO CourseRecordDetail (
+            AdmissionRecordID,
+            RecordContent,
+            RecordDateTime
+        ) VALUES (
+            #{admissionRecordID},
+            #{recordContent},
+            #{recordDateTime}
+        )
+    </insert>
+
+    <!-- 删除住院记录 -->
+    <delete id="deleteInpatientRecord">
+        DELETE FROM InpatientRecord 
+        WHERE AdmissionRecordID = #{admissionRecordID}
+    </delete>
+
+    <!-- 删除病程记录 -->
+    <delete id="deleteCourseRecordDetail">
+        DELETE FROM CourseRecordDetail 
+        WHERE AdmissionRecordID = #{admissionRecordID}
+        AND RecordDateTime = #{recordDateTime}
+    </delete>
+
+    <!-- 修改住院记录 -->
+    <update id="updateInpatientRecord" parameterType="org.example.demo.model.entity.InpatientRecord">
+        UPDATE InpatientRecord
+        SET ResidentHealthCardID = #{residentHealthCardID},
+            InstitutionCode = #{institutionCode},
+            AdmissionNumber = #{admissionNumber},
+            AdmissionConditionCode = #{admissionConditionCode},
+            TotalHospitalizationCost = #{totalHospitalizationCost},
+            DiagnosisDate = #{diagnosisDate}
+        WHERE AdmissionRecordID = #{admissionRecordID}
+    </update>
+
+    <!-- 修改病程记录 -->
+    <update id="updateCourseRecordDetail" parameterType="org.example.demo.model.entity.CourseRecordDetail">
+        UPDATE CourseRecordDetail
+        SET RecordContent = #{recordContent}
+        WHERE AdmissionRecordID = #{admissionRecordID}
+        AND RecordDateTime = #{recordDateTime}
+    </update>
+
+    <!-- 更新住院记录的DiagnosisDate -->
+    <update id="updateDiagnosisDate">
+        UPDATE InpatientRecord
+        SET DiagnosisDate = #{diagnosisDate}
+        WHERE AdmissionRecordID = #{admissionRecordID}
+    </update>
+
+    <!-- 根据条件查询住院记录 -->
+    <select id="selectInpatientRecords" resultType="org.example.demo.model.entity.InpatientRecord">
+        SELECT * FROM InpatientRecord
+        <where>
+            <if test="institutionCode != null and institutionCode != ''">
+                AND InstitutionCode = #{institutionCode}
+            </if>
+            <if test="residentHealthCardID != null and residentHealthCardID != ''">
+                AND ResidentHealthCardID = #{residentHealthCardID}
+            </if>
+            <if test="diagnosisDate != null and diagnosisDate != ''">
+                AND DiagnosisDate = #{diagnosisDate}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据AdmissionRecordID查找所有病程记录 -->
+    <select id="selectCourseRecordDetails" resultType="org.example.demo.model.entity.CourseRecordDetail">
+        SELECT * FROM CourseRecordDetail
+        WHERE AdmissionRecordID = #{admissionRecordID}
+        ORDER BY RecordDateTime DESC
+    </select>
+
+</mapper> 
