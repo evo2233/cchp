@@ -25,6 +25,7 @@ public class InpatientServiceImpl implements InpatientService {
 
     @Override
     public int insertInpatientRecord(InpatientRecord record) {
+        record.setDiagnosisDate(new Date());
         return inpatientMapper.insertInpatientRecord(record);
     }
 
@@ -63,7 +64,7 @@ public class InpatientServiceImpl implements InpatientService {
     @Override
     @Transactional
     public int updateInpatientRecord(InpatientRecord record) {
-        record.setDiagnosisDate(getCurrentDate());
+        record.setDiagnosisDate(new Date());
         return inpatientMapper.updateInpatientRecord(record);
     }
 
