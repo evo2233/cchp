@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.example.demo.constants.ContractConstants;
+import org.example.demo.service.AdminService;
 import org.fisco.bcos.sdk.v3.BcosSDK;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.config.ConfigOption;
@@ -30,6 +31,10 @@ public class SdkBeanConfig {
     @Autowired private SystemConfig systemConfig;
     @Autowired private BcosConfig bcosConfig;
     @Autowired private ContractConfig contractConfig;
+
+    private final AdminService adminService;
+    @Autowired
+    SdkBeanConfig(AdminService adminService) { this.adminService = adminService; }
 
     @Bean
     public Client client() throws Exception {
@@ -67,6 +72,10 @@ public class SdkBeanConfig {
             String address = deployContract(client, ContractConstants.InstitutionAbi, ContractConstants.InstitutionBinary);
             contractConfig.setInstitutionContractAddress(address);
             saveContractAddresses();
+
+            // 获取部署者的地址并初始化管理员
+            String deployerAddress = client.getCryptoSuite().getCryptoKeyPair().getAddress();
+            adminService.initializeAdmin(deployerAddress);
         }
 
         return client;
