@@ -24,8 +24,9 @@ public class InpatientServiceImpl implements InpatientService {
     }
 
     @Override
-    public int insertInpatientRecord(InpatientRecord record) {
+    public int insertInpatientRecord(InpatientRecord record, String identity) {
         record.setDiagnosisDate(new Date());
+        record.setInstitutionCode(identity);  // 机构自动完成签名
         return inpatientMapper.insertInpatientRecord(record);
     }
 
@@ -63,8 +64,9 @@ public class InpatientServiceImpl implements InpatientService {
 
     @Override
     @Transactional
-    public int updateInpatientRecord(InpatientRecord record) {
+    public int updateInpatientRecord(InpatientRecord record, String identity) {
         record.setDiagnosisDate(new Date());
+        record.setInstitutionCode(identity);  // 机构自动完成签名
         return inpatientMapper.updateInpatientRecord(record);
     }
 
