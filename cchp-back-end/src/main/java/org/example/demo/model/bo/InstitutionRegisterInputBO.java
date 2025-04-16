@@ -12,11 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 public class InstitutionRegisterInputBO {
 
+    private String institutionAddr;
     private String institutionCode;
     private String institutionName;
 
     public List<Object> toArgs() {
         List<Object> args = new ArrayList<>();
+        args.add(institutionAddr);
         args.add(institutionCode);
         args.add(institutionName);
         return args;

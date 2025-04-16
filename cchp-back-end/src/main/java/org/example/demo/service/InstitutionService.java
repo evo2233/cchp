@@ -1,6 +1,5 @@
 package org.example.demo.service;
 
-import org.example.demo.model.bo.InstitutionRegisterInputBO;
 import org.example.demo.model.dto.InstitutionDTO;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public interface InstitutionService {
      * @param adminAddress 管理员地址
      * @return 是否授权成功
      */
-    boolean authorizeInstitution(InstitutionRegisterInputBO input, String adminAddress);
+    boolean authorizeInstitution(InstitutionDTO input, String adminAddress);
 
     /**
      * 撤销医疗机构授权
@@ -36,16 +35,7 @@ public interface InstitutionService {
     boolean isAuthorized(String institutionCode);
 
     /**
-     * 根据地址检查机构是否被授权
-     * @param institutionAddress 机构地址
-     * @return 是否授权
+     * 机构登录
      */
-    boolean isAuthorizedAddress(String institutionAddress);
-
-    /**
-     * 根据地址获取机构代码
-     * @param institutionAddress 机构地址
-     * @return 机构代码
-     */
-    String getInstitutionCode(String institutionAddress);
+    String getToken(InstitutionDTO dto) throws Exception;
 }

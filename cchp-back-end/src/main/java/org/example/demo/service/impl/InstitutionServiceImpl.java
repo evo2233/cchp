@@ -1,12 +1,17 @@
 package org.example.demo.service.impl;
 
+import org.example.demo.authentication.JwtUtils;
 import org.example.demo.config.ContractConfig;
 import org.example.demo.constants.ContractConstants;
 import org.example.demo.model.bo.InstitutionRegisterInputBO;
 import org.example.demo.model.dto.InstitutionDTO;
+import org.example.demo.model.dto.PatientLoginDTO;
+import org.example.demo.model.entity.Patient;
 import org.example.demo.service.InstitutionService;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.crypto.keypair.ECDSAKeyPair;
 import org.fisco.bcos.sdk.v3.transaction.manager.AssembleTransactionProcessor;
 import org.fisco.bcos.sdk.v3.transaction.manager.TransactionProcessorFactory;
 import org.fisco.bcos.sdk.v3.transaction.model.dto.CallResponse;
@@ -15,8 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class InstitutionServiceImpl implements InstitutionService {
@@ -38,13 +46,21 @@ public class InstitutionServiceImpl implements InstitutionService {
         this.address = contractConfig.getInstitutionContractAddress();
     }
 
+    // 注册机构 暨 授权机构
     @Override
-    public boolean authorizeInstitution(InstitutionRegisterInputBO input, String adminAddress) {
+    public boolean authorizeInstitution(InstitutionDTO input, String adminAddress) {
         try {
+            // 生成新的密钥对
+            CryptoKeyPair KeyPair = new ECDSAKeyPair().generateKeyPair();
+            String institutionAddress = KeyPair.getAddress();
+
+            // 保存私钥到文件
+            savePrivateKeyToFile(KeyPair.getHexPrivateKey(), input.getInstitutionCode());
+
             List<Object> params = new ArrayList<>();
             params.add(input.getInstitutionCode());
             params.add(input.getInstitutionName());
-            params.add(adminAddress);
+            params.add(institutionAddress);
             params.add(adminAddress);
 
             TransactionResponse response = this.txProcessor.sendTransactionAndGetResponse(
@@ -160,52 +176,62 @@ public class InstitutionServiceImpl implements InstitutionService {
     }
 
     @Override
-    public boolean isAuthorizedAddress(String institutionAddress) {
-        try {
-            List<Object> params = new ArrayList<>();
-            params.add(institutionAddress);
+    public String getToken(InstitutionDTO dto) throws Exception {
+        if(!isAuthorized(dto.getInstitutionCode())) {
+            throw new Exception("Error: not authorized");
+        }
+        // generate token
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sub", dto.getInstitutionCode());
+        String token = JwtUtils.generateToken(claims);
+        if(token == null) {
+            throw new Exception("Error: token is null");
+        }
+        return token;
+    }
 
-            CallResponse response = this.txProcessor.sendCall(
-                    this.client.getCryptoSuite().getCryptoKeyPair().getAddress(),
-                    this.address,
-                    ContractConstants.InstitutionAbi,
-                    "isAuthorizedAddress",
-                    params
-            );
+    private void savePrivateKeyToFile(String privateKey, String identity) throws IOException {
+        // 创建存储私钥的目录
+        File keyDir = new File("keys");
+        if (!keyDir.exists()) {
+            keyDir.mkdirs();
+        }
 
-            if (response.getResults() == null || response.getResults().isEmpty()) {
-                return false;
-            }
-
-            return (boolean) (response.getResults().get(0)).getValue();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+        // 使用机构ID作为文件名
+        File keyFile = new File(keyDir, identity + ".key");
+        try (FileWriter writer = new FileWriter(keyFile)) {
+            writer.write(privateKey);
         }
     }
 
-    @Override
-    public String getInstitutionCode(String institutionAddress) {
-        try {
-            List<Object> params = new ArrayList<>();
-            params.add(institutionAddress);
-
-            CallResponse response = this.txProcessor.sendCall(
-                    this.client.getCryptoSuite().getCryptoKeyPair().getAddress(),
-                    this.address,
-                    ContractConstants.InstitutionAbi,
-                    "getInstitutionCode",
-                    params
-            );
-
-            if (response.getResults() == null || response.getResults().isEmpty()) {
-                return null;
-            }
-
-            return (String) (response.getResults().get(0)).getValue();
-        } catch (Exception e) {
-            e.printStackTrace();
+    private String readPrivateKeyFromFile(String identityFile) throws IOException {
+        File keyFile = new File("keys", identityFile + ".key");
+        if (!keyFile.exists()) {
             return null;
         }
+
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(keyFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        }
+        return content.toString();
+    }
+
+    private String getInstitutionAddress(String identityFile) throws IOException {
+        // 从私钥文件中读取私钥
+        String privateKey = readPrivateKeyFromFile(identityFile);
+        if (privateKey == null) {
+            throw new RuntimeException("用户私钥不存在");
+        }
+
+        // 使用私钥创建用户密钥对
+        ECDSAKeyPair ecdsaKeyPair = new ECDSAKeyPair();
+        CryptoKeyPair KeyPair = ecdsaKeyPair.createKeyPair(privateKey);
+        String institutionAddress = KeyPair.getAddress();
+
+        return institutionAddress;
     }
 }

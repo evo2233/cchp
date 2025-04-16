@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-    private static String admin_name = "admin0";
+    private static String admin_name = "admin1";
     private static String admin_password = "123";
 
     @Autowired
