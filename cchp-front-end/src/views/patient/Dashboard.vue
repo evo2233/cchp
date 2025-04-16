@@ -36,8 +36,6 @@ import PatientMenuSidebar from './components/PatientMenuSidebar.vue';
 import PageTitle from './components/PageTitle.vue';
 import AppointmentTable from './components/AppointmentTable.vue';
 
-
-
 export default {
   components: {
     PatientMenuSidebar,

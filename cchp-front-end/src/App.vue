@@ -1,24 +1,16 @@
 <template>
+  <!-- <TestPage /> -->
   <MainHeader />
-  <PatientDashboard />
-
-  <!-- <nav>
-    <router-link to="/">首页</router-link> |
-    <router-link to="/about">关于</router-link>
-  </nav>
-  
-  <router-view/> -->
+  <!-- <PatientDashboard /> -->
+  <!-- <LoginView /> -->
+  <router-view />
 </template>
 
-<script>
-import MainHeader from './components/layouts/Header.vue'
-// import Footer from './components/layouts/Footer.vue'
-import PatientDashboard from './views/patient/Dashboard.vue'
+<script setup>
+import TestPage from '@/views/test/TestUserProfile.vue'
+import MainHeader from '@/components/layouts/Header.vue'
+// import Footer from '@/components/layouts/Footer.vue'
+import PatientDashboard from '@/views/patient/Dashboard.vue'
+import LoginView from '@/views/auth/LoginView.vue'
 
-export default {
-  components: {
-    MainHeader,
-    PatientDashboard
-  }
-}
 </script>

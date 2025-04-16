@@ -979,6 +979,11 @@
     margin-bottom: 15px;
   }
 
+  .content_block_4 .content-box .subscribe-form .form-group input[type='identity']{
+    border-radius: 0px;
+    margin-bottom: 15px;
+  }
+
   .footer-bottom .copyright,
   .footer-bottom .footer-nav{
     float: none;

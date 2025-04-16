@@ -6,7 +6,13 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 
 # 开发记录
 
-还未完成router的配置，可以先使用mock拦截请求
+还未完成 router 的配置，可以先使用 mock 拦截请求
+
+还未完成请求数据类型的定义并添加 JSDoc 注释
+
+还未完成 mock 数据的测试
+
+还未完成 ts 文件的改造
 
 # 指令
 
@@ -21,4 +27,3 @@ npm install
 ```bash
 npm run dev
 ```
-
