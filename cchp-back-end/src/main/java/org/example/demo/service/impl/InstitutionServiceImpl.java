@@ -9,6 +9,7 @@ import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.entity.Patient;
 import org.example.demo.service.InstitutionService;
 import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.ECDSAKeyPair;
@@ -127,17 +128,17 @@ public class InstitutionServiceImpl implements InstitutionService {
         List<Type> results = response.getResults();
         
         // 获取机构代码数组
-        List<Type> codeTypes = (List<Type>) results.get(0);
+        DynamicArray codeTypes = (DynamicArray) results.get(0);
         List<String> codes = new ArrayList<>();
-        for (Type codeType : codeTypes) {
-            codes.add((String) codeType.getValue());
+        for (Object codeType : codeTypes.getValue()) {
+            codes.add((String) ((Type) codeType).getValue());
         }
 
         // 获取机构名称数组
-        List<Type> nameTypes = (List<Type>) results.get(1);
+        DynamicArray nameTypes = (DynamicArray) results.get(1);
         List<String> names = new ArrayList<>();
-        for (Type nameType : nameTypes) {
-            names.add((String) nameType.getValue());
+        for (Object nameType : nameTypes.getValue()) {
+            names.add((String) ((Type) nameType).getValue());
         }
 
         List<InstitutionDTO> result = new ArrayList<>();
