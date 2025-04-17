@@ -19,14 +19,26 @@ public class JwtFilter implements Filter {
             "/patient/login",
             "/patient/register",
             "/admin",
-            "/doctor/login",
-            "/inpatient/record"
+            "/doctor/login"
     );
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        // 设置跨域响应头（即使失败也要设置）
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        response.setHeader("Access-Control-Expose-Headers", "Authorization");
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+
+        // 放行OPTIONS请求（预检请求）
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
 
         String requestURI = request.getRequestURI();
 
@@ -37,7 +49,6 @@ public class JwtFilter implements Filter {
                 return;
             }
         }
-
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -54,6 +65,8 @@ public class JwtFilter implements Filter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        filterChain.doFilter(request, response); // allow access
+
+        filterChain.doFilter(request, response);
     }
+
 }
