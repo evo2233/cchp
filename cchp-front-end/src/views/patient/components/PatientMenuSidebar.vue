@@ -7,8 +7,8 @@
       </figure>
       <div class="title-box centred">
         <div class="inner">
-          <h3>{{ user.name }}</h3>
-          <p><i class="fas fa-calendar-alt"></i>{{ user.birthDate }}, {{ user.age }} Years</p>
+          <h3>{{ authStore.account?.realname || '未登录用户' }}</h3>
+          <p><i class="fas fa-calendar-alt"></i>{{ formattedBirthdate  }}, {{ calculatedAge }} Years</p>
         </div>
       </div>
     </div>
@@ -27,38 +27,52 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    // 用于传递用户信息和当前活动页面
-    user: {
-      type: Object,
-      required: true
-    },
-    activePage: {
-      type: String,
-      required: true
-    }
+<script setup>
+import { computed } from 'vue';
+import { useAuthStore } from '@/store/auth';
+import { useRouter } from 'vue-router';
+
+const authStore = useAuthStore();
+const router = useRouter();
+
+// 使用计算属性确保响应式
+const formattedBirthdate = computed(() => {
+  if (!authStore.account?.birthdate) return '未知';
+  return new Date(authStore.account.birthdate).toLocaleDateString('zh-CN');
+});
+
+const calculatedAge = computed(() => {
+  if (!authStore.account?.birthdate) return '?';
+  const birthYear = new Date(authStore.account.birthdate).getFullYear();
+  return new Date().getFullYear() - birthYear;
+});
+
+// 修改为使用路由名称而非HTML文件路径
+const menuItems = [
+  { Menuname: '仪表盘', routeName: 'PatientDashboard', icon: 'fas fa-columns' },
+  { Menuname: '最喜欢的医生', routeName: 'FavouriteDoctors', icon: 'fas fa-heart' },
+  { Menuname: '预约', routeName: 'PatientAppointments', icon: 'fas fa-clock' },
+  {
+    Menuname: '消息',
+    routeName: 'PatientMessages',
+    icon: 'fas fa-comments',
+    count: authStore.user?.unreadMessages || 0
   },
-  data () {
-    return {
-      // 菜单项数据
-      menuItems: [
-        { Menuname: '仪表盘', route: 'patient-dashboard.html', icon: 'fas fa-columns' },
-        { Menuname: '最喜欢的医生', route: 'favourite-doctors.html', icon: 'fas fa-heart' },
-        { Menuname: '日期', route: 'schedule-timing-2.html', icon: 'fas fa-clock' },
-        { Menuname: '信息', route: 'message-2.html', icon: 'fas fa-comments', count: this.user.messagesCount },
-        { Menuname: '个人信息', route: 'patient-profile.html', icon: 'fas fa-user' },
-        { Menuname: '修改密码', route: 'change-password-2.html', icon: 'fas fa-unlock-alt' },
-        { Menuname: '登出', route: 'login-2.html', icon: 'fas fa-sign-out-alt' }
-      ]
-    }
-  },
-  methods: {
-    isActive (page) {
-      // 根据当前活动页面判断菜单项是否为活动状态
-      return this.activePage === page;
+  { Menuname: '个人信息', routeName: 'PatientProfile', icon: 'fas fa-user' },
+  { Menuname: '修改密码', routeName: 'ChangePassword', icon: 'fas fa-unlock-alt' },
+  {
+    Menuname: '登出',
+    routeName: 'logout',
+    icon: 'fas fa-sign-out-alt',
+    action: () => {
+      authStore.logout();
+      router.push({ name: 'Login' });
     }
   }
+];
+
+const isActive = (page) => {
+  return router.currentRoute.value.name === page;
 };
+
 </script>

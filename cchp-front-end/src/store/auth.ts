@@ -1,14 +1,22 @@
 import { defineStore } from "pinia";
 import { logger } from "@/utils/logger";
-
-// 通用账户接口
-type UserRole = "user" | "doctor";
+import {
+  UserRole,
+  LoginRequrest,
+  LoginCredentials,
+  RegisterRequest,
+  RegisterUser,
+} from "@/api/auth";
+import { showSuccess } from "@/utils/message";
+import { safeRedirect } from "@/router/navigation";
 
 // 账号
 interface Account {
   id: string; // id
   identity: string; // 身份证号
   realname: string; // 真实姓名
+  gendercode: string; // 性别
+  birthdate: string; // 出生日期
   role: UserRole; // 角色
 }
 // 身份认证状态
@@ -18,16 +26,18 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
 }
-// 登陆需要的信息
-export type LoginCredentials = {
-  identity: string; // 身份证号
-  realname: string; // 真实姓名
-  password: string; // 密码
-};
 
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
-    account: null,
+    account: {
+      // 初始化空对象
+      id: "",
+      identity: "",
+      realname: "",
+      gendercode: "",
+      birthdate: "",
+      role: "user",
+    },
     token: null, // 有token就是身份认证成功
     isLoading: false,
     error: null,
@@ -47,69 +57,10 @@ export const useAuthStore = defineStore("auth", {
         this.isLoading = true;
         this.error = null;
 
-        logger.info("用户登录尝试", { 登陆信息: credentials });
+        await LoginRequrest(credentials); // 向后端发送请求
 
-        // 模拟API请求延迟
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // 模拟账号数据库
-        const mockAccounts: (Account & {
-          password: string;
-          identity: string;
-        })[] = [
-          {
-            identity: "230623200401171238",
-            password: "123456",
-            id: "user-001",
-            realname: "李闯",
-            role: "user",
-          },
-          {
-            identity: "310101198805053333",
-            password: "user123",
-            id: "user-002",
-            realname: "普通用户",
-            role: "user",
-          },
-          {
-            identity: "110101197201012222",
-            password: "doctor123",
-            id: "doc-001",
-            realname: "张医生",
-            role: "doctor",
-          },
-          {
-            identity: "310101197505052222",
-            password: "123456",
-            id: "doc-002",
-            realname: "李医生",
-            role: "doctor",
-          },
-        ];
-
-        // TODO: 这里需要调用API去获取数据
-        const found = mockAccounts.find(
-          (a) =>
-            a.realname === credentials.realname &&
-            a.identity == credentials.identity &&
-            a.password === credentials.password
-        );
-
-        if (found) {
-          const { password, ...account } = found;
-          this.account = account; // 存储账号信息
-          this.token = `${account.role}-token-${account.id}`; // 存储身份认证的Token
-
-          logger.info("登录成功", {
-            id: account.id,
-            indetity: account.identity,
-            realname: account.realname,
-            role: account.role,
-          });
-          return true;
-        }
-
-        throw new Error("邮箱或密码错误");
+        showSuccess("登陆成功");
+        safeRedirect("/patient");
       } catch (error) {
         this.error = error instanceof Error ? error.message : "登录失败";
         logger.error("登录失败", {
@@ -123,37 +74,14 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     // 注册函数
-    async register(newUser: {
-      identity: string; // 身份（user/doctor）
-      realname: string; // 真实姓名
-      gendercode: string; // 性别
-      birthdate: string; // 出生日期
-      password: string;
-      confirmPassword: string;
-      role: UserRole;
-    }) {
-      // 模拟API延迟
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // 创建模拟账户对象
-      const account: Account = {
-        id: `${newUser.identity}-${Date.now()}`,
-        identity: newUser.identity,
-        realname: newUser.realname,
-        role: newUser.role,
-      };
-
-      this.account = account;
-      this.token = `${account.role}-token-${account.id}`;
-
-      logger.info("注册成功", {
-        id: account.id,
-        identity: account.identity,
-        realname: account.realname,
-        gendercode: newUser.gendercode,
-        birthdate: newUser.birthdate,
-        role: account.role,
-      });
+    async register(newUser: RegisterUser) {
+      try {
+        await RegisterRequest(newUser);
+        showSuccess("注册成功");
+        safeRedirect("/login");
+      } catch (error) {
+        showSuccess("注册失败!");
+      }
     },
     // 登出
     async logout() {

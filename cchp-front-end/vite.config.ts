@@ -10,15 +10,4 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  plugins: [
-    // 开发环境注入mock
-    process.env.NODE_ENV === "development" && {
-      name: "msw-loader",
-      configureServer(server) {
-        import("@/src/mocks/browser").then(({ worker }) => {
-          worker.start({ onUnhandledRequest: "bypass" });
-        });
-      },
-    },
-  ],
 });

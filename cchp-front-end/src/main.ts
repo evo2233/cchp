@@ -1,15 +1,16 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import ElementPlus from "element-plus";
+import "element-plus/dist/index.css";
 import App from "@/App.vue";
 import router from "@/router";
-import { worker } from "@/mock/browser";
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
-const app = createApp(App).use(router).use(pinia).mount("#app");
-
-if (import.meta.env.MODE === "development") {
-  worker.start();
-}
+const app = createApp(App)
+  .use(router)
+  .use(pinia)
+  .use(ElementPlus)
+  .mount("#app");

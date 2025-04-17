@@ -95,6 +95,9 @@ import { ref, computed } from 'vue'
 import UserProfileDropdown from '@/components/common/UserProfileDropdown.vue'
 import { useAuthStore } from '@/store/auth'
 
+// 使用auth store
+const authStore = useAuthStore()
+
 interface MenuItem {
   id: string
   title: string
@@ -179,10 +182,10 @@ const mainMenus = ref<MenuItem[]>([
 ])
 
 const userData = ref<UserData>({
-  userName: '张三',
+  userName: '李闯',
   avatarUrl: new URL('@/assets/images/author-1.png', import.meta.url).href, // 正确处理静态资源路径
 })
-const isAuthenticated = computed(() => !!userData.value)
+const isAuthenticated = false
 
 const menuOptions = ref<MenuOption[]>([
   { optionName: '个人信息', route: '/profile', icon: 'user' },

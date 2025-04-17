@@ -25,22 +25,19 @@
                   <label>Identity</label>
                   <input type="identity"
                          v-model="form.identity"
-                         placeholder="Enter your ID"
-                         required />
+                         placeholder="Enter your ID" />
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
                   <label>Realname</label>
                   <input type="realname"
                          v-model="form.realname"
-                         placeholder="Enter your realname"
-                         required />
+                         placeholder="Enter your realname" />
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
                   <label>Password</label>
                   <input type="password"
                          v-model="form.password"
-                         placeholder="Your password"
-                         required />
+                         placeholder="Your password" />
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
                   <div class="forgot-passowrd clearfix">
@@ -82,6 +79,7 @@ import { ref, reactive, computed } from 'vue'
 import { logger } from '@/utils/logger'
 import { useAuthStore } from '@/store/auth'
 import { navigateTo, safeRedirect } from '@/router/navigation'
+import { showError, showSuccess } from '@/utils/message'
 
 // 表单数据
 const form = reactive({
@@ -99,13 +97,20 @@ const authStore = useAuthStore()
 
 const handleLogin = async () => {
   if (!form.identity || !form.realname || !form.password) {
-    errorMessage.value = '登陆信息不全'
-    logger.error(errorMessage.value)
+    const missingFields = []
+    if (!form.identity) missingFields.push('身份证号')
+    if (!form.realname) missingFields.push('姓名')
+    if (!form.password) missingFields.push('密码')
+
+    const errorMessage = `请填写完整的登录信息，缺少：${missingFields.join(
+      '、'
+    )}`
+    showError(errorMessage)
+    logger.error('登录表单验证失败', { missingFields, form })
     return
   }
 
   try {
-    logger.info('开始登陆', form)
     isLoading.value = true
     errorMessage.value = ''
 
@@ -115,11 +120,10 @@ const handleLogin = async () => {
       realname: form.realname,
       password: form.password,
     })
-
-    safeRedirect('/patient')
   } catch (error) {
     errorMessage.value = error.message || '登录失败，请重试'
     logger.error('登录错误:', error)
+    showError(errorMessage.value)
   } finally {
     isLoading.value = false
   }

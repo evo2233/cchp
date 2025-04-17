@@ -35,8 +35,8 @@
                     <option value=""
                             disabled
                             selected>请选择性别</option>
-                    <option value="male">男</option>
-                    <option value="female">女</option>
+                    <option value="M">男</option>
+                    <option value="F">女</option>
                   </select>
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
@@ -85,7 +85,9 @@
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group message-btn">
                   <button type="submit"
-                          class="theme-btn-one">Register Now<i class="icon-Arrow-Right"></i></button>
+                          class="theme-btn-one">
+                    Register Now<i class="icon-Arrow-Right"></i>
+                  </button>
                 </div>
               </div>
             </form>
@@ -95,7 +97,7 @@
               <li><a href="register-page.html">Login with Google Plus</a></li>
             </ul>
             <div class="login-now">
-              <p>Already have an account? <a href="register-page.html">Login Now</a></p>
+              <p>Already have an account? <router-link to="/login">Login Now</router-link></p>
             </div>
           </div>
         </div>
@@ -110,6 +112,7 @@ import { logger } from '@/utils/logger'
 import { ref, reactive } from 'vue'
 import { navigateTo, safeRedirect } from '@/router/navigation'
 import { useAuthStore } from '@/store/auth'
+import { showError, showSuccess } from '@/utils/message'
 
 // 注册表单
 const form = reactive({
@@ -137,13 +140,14 @@ const handleRegister = async () => {
     !form.password ||
     !form.confirmPassword
   ) {
-    errorMessage.value = '注册信息不完全'
+    errorMessage.value = '请填写完整的注册信息'
+    showError(errorMessage.value)
     logger.error(errorMessage.value)
     return
   }
 
   if (form.password !== form.confirmPassword) {
-    alert('两次输入的密码不一致！')
+    showError('两次密码不一致')
     return
   }
 
@@ -162,8 +166,6 @@ const handleRegister = async () => {
       confirmPassword: form.confirmPassword,
       role: 'user',
     })
-
-    safeRedirect('/patient')
   } catch (error) {
     errorMessage.value = error.message || '注册失败，请重试'
     logger.error('注册错误:', error)

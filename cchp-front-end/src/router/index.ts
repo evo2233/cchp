@@ -36,30 +36,27 @@ const patientRoutes: Array<RouteRecordRaw> = [
     name: "PatientDashboard",
     component: () => import("@/views/patient/Dashboard.vue"),
     meta: {
-      title: "患者中心",
+      title: "门诊记录表",
       requiredRole: "patient",
-      breadcrumb: ["患者门户"],
     },
-    children: [
-      {
-        path: "records",
-        name: "MedicalRecords",
-        component: PlaceholderView,
-        meta: {
-          title: "我的病历",
-          breadcrumb: ["患者门户", "病历管理"],
-        },
-      },
-      {
-        path: "doctors",
-        name: "MyDoctors",
-        component: PlaceholderView,
-        meta: {
-          title: "我的医生",
-          breadcrumb: ["患者门户", "医生团队"],
-        },
-      },
-    ],
+  },
+  {
+    path: "/patient/outpatient-detail",
+    name: "OutpatientDetail",
+    component: () => import("@/views/patient/OutpatientDetail.vue"),
+    meta: {
+      title: "门诊记录详情",
+      requiredRole: "patient",
+    },
+  },
+  {
+    path: "/patient/inpatient-detail",
+    name: "InpatientDetail",
+    component: () => import("@/views/patient/InpatientDetail.vue"),
+    meta: {
+      title: "住院记录详情",
+      requiredRole: "patient",
+    },
   },
 ];
 

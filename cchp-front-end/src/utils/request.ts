@@ -3,13 +3,17 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosResponse,
   type InternalAxiosRequestConfig,
+  type AxiosRequestHeaders, // 请求头
 } from "axios";
 import { devLog, logger } from "./logger"; // 引入日志工具
+import { useAuthStore } from "@/store/auth";
+import { showError, showMessage } from "./message";
 
 // 定义服务实例
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_API || "/api",
-  timeout: 5000,
+  baseURL: "http://113.44.76.249:8080",
+  timeout: 5000, // 超时
+  withCredentials: true, // ✅ 允许跨域请求时携带 cookie 等认证信息
 });
 
 // 开发环境特殊配置
@@ -59,12 +63,22 @@ if (import.meta.env.VITE_APP_ENV === "development") {
 // 通用请求拦截器
 service.interceptors.request.use(
   (config) => {
-    // TODO: 添加认证token
+    const authStore = useAuthStore();
+
+    // 添加请求头
+    if (authStore.token) {
+      const token = authStore.token.trim();
+      console.log("添加请求头Token:", token);
+      config.headers = config.headers || ({} as AxiosRequestHeaders);
+      config.headers["Authorization"] = `Bearer ${token}`;
+      console.log("最终请求头:", config.headers); // 检查是否被覆盖
+    }
+
     return config;
   },
   (error) => {
     // Do something with request error
-    logger.error("Request Interceptor Error", error);
+    logger.error("请求拦截器拦截错误", error);
     return Promise.reject(error);
   }
 );
@@ -72,15 +86,16 @@ service.interceptors.request.use(
 // 通用响应拦截器
 service.interceptors.response.use(
   (response) => {
+    console.log("拦截器进入 - response:", response.data);
     const res = response.data;
 
-    // 处理不同的响应结构
     if (res.code !== undefined) {
-      // 有明确code字段的响应
-      if (res.code === 200) {
-        return res.data !== undefined ? res.data : res;
+      if (res.code === "0") {
+        console.log("获取请求数据成功(code=0)", res);
+        return res; // 将请求数据全部返回
       } else {
         const errorMsg = res.message || "请求错误";
+        showError(errorMsg);
         logger.warn(`Business Error: ${errorMsg}`, {
           url: response.config.url,
           code: res.code,
@@ -90,17 +105,15 @@ service.interceptors.response.use(
     }
 
     // 没有code字段的直接返回
+    console.log("获取请求数据成功(code=None)", res);
     return res;
   },
   (error) => {
-    if (!import.meta.env.DEV) {
-      logger.error("Network Error", {
-        url: error.config?.url,
-        message: error.message,
-      });
-    }
+    console.log("拦截器进入 - error:", error);
+    const errorMessage = error.response.data.message;
+    showError(errorMessage);
 
-    return Promise.reject(error);
+    return Promise.reject(error); // 继续传递错误
   }
 );
 
