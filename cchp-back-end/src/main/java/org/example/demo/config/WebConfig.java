@@ -26,10 +26,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173") // 前端地址
+                .allowedOrigins("http://localhost:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true) // 如果前端发送了携带 cookie 的请求
+                .exposedHeaders("Authorization")
+                .allowCredentials(true)
                 .maxAge(3600);
     }
+
 }
