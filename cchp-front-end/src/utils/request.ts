@@ -90,7 +90,7 @@ service.interceptors.response.use(
     const res = response.data;
 
     if (res.code !== undefined) {
-      if (res.code === "0") {
+      if (res.code === "0" || res.status == 200) {
         console.log("获取请求数据成功(code=0)", res);
         return res; // 将请求数据全部返回
       } else {

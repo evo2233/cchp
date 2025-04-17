@@ -30,8 +30,8 @@
               <th>诊断日期</th>
               <th>居民健康卡号</th>
               <th>医疗机构代码</th>
-              <th>主诉/入院病情</th>
-              <th>总费用/诊断名称</th>
+              <th>住院号</th>
+              <th>总费用</th>
               <th>&nbsp;</th>
             </tr>
           </thead>
@@ -61,14 +61,14 @@
                 <p>{{ record.InstitutionCode }}</p>
               </td>
               <td>
-                <p>{{ record.condition }}</p>
+                <p>{{ record.admissionNumber }}</p>
               </td>
               <td>
-                <p>{{ record.total_hospitalization_cost || record.diagnosis }}</p>
+                <p>{{ record.total_hospitalization_cost }}</p>
               </td>
               <td>
                 <span class="view"
-                      @click="viewRecordDetail(record.record_id, record.record_type)">
+                      @click="viewRecordDetail(record.record_id, record.record_type, record)">
                   <i class="fas fa-eye"></i>查看详情
                 </span>
               </td>
@@ -85,10 +85,11 @@ import { ref } from 'vue'
 import { onMounted } from 'vue'
 import { logger } from '@/utils/logger'
 import { useRouter } from 'vue-router'
+import { usePatientStore, AdmissionRecord } from '@/store/patient'
 import { getInpatientRecordList } from '@/api/patient'
 
 onMounted(() => {
-  // fetchInitialRecords()
+  fetchInitialRecords()
 })
 
 type RecordType = '门诊' | '住院' | '急诊' // 记录类型
@@ -99,78 +100,15 @@ interface Record {
   ResidentHealthCardID: string // 居民健康卡号
   InstitutionCode: string // 医疗机构代码
   DiagnosisDate: string // 诊断日期
-  condition: string //
-  diagnosis: string //
-  total_hospitalization_cost: number // 总费用
-}
-
-// 住院记录数据结构
-interface AdmissionRecord {
-  admissionRecordID: number // 住院记录唯一标识
-  residentHealthCardID: string // 健康卡号
-  institutionCode: string // 医疗机构代码
   admissionNumber: string // 住院号
-  admissionConditionCode: string // 入院病情代码
-  totalHospitalizationCost: number // 住院总费用
-  diagnosisDate: string // 最近更改时间
+  total_hospitalization_cost: number // 总费用
 }
 
 const residentCard = ref('')
 const institutionCode = ref('')
 const diagnosisDate = ref('') // 可选的诊断日期筛选字段
 // 住院记录
-const records = ref<Record[]>([
-  {
-    record_id: 10001,
-    record_type: '门诊',
-    ResidentHealthCardID: '110101199003073218',
-    InstitutionCode: 'ORG1001',
-    DiagnosisDate: '2025-03-20',
-    condition: '头痛，流鼻涕',
-    diagnosis: '感冒',
-    total_hospitalization_cost: 0,
-  },
-  {
-    record_id: 10002,
-    record_type: '门诊',
-    ResidentHealthCardID: '110101199003073218',
-    InstitutionCode: 'ORG1002',
-    DiagnosisDate: '2025-04-01',
-    condition: '腰酸背痛',
-    diagnosis: '腰肌劳损',
-    total_hospitalization_cost: 0,
-  },
-  {
-    record_id: 20001,
-    record_type: '住院',
-    ResidentHealthCardID: '110101199003073218',
-    InstitutionCode: 'ORG3001',
-    DiagnosisDate: '2025-03-15',
-    condition: '持续高热，胸闷',
-    diagnosis: '肺炎',
-    total_hospitalization_cost: 8800.0,
-  },
-  {
-    record_id: 20002,
-    record_type: '住院',
-    ResidentHealthCardID: '110101199003073218',
-    InstitutionCode: 'ORG3002',
-    DiagnosisDate: '2025-02-28',
-    condition: '术后恢复观察',
-    diagnosis: '阑尾炎手术',
-    total_hospitalization_cost: 12000.0,
-  },
-  {
-    record_id: 30001,
-    record_type: '急诊',
-    ResidentHealthCardID: '110101199003073218',
-    InstitutionCode: 'ORG5001',
-    DiagnosisDate: '2025-04-10',
-    condition: '突发晕厥',
-    diagnosis: '短暂性脑缺血发作',
-    total_hospitalization_cost: 1500.0,
-  },
-])
+const records = ref<Record[]>([])
 
 function printAppointment(id: number) {
   console.log('Print appointment:', id)
@@ -178,21 +116,36 @@ function printAppointment(id: number) {
 
 const router = useRouter()
 
-function viewRecordDetail(id: number, recordType: RecordType) {
+function viewRecordDetail(
+  id: number,
+  recordType: RecordType,
+  recordInfo: Record
+) {
   // 映射
   const routeMap = {
-    门诊: 'OutpatientDetail',
-    住院: 'InpatientDetail',
-    急诊: 'EmergencyDetail',
+    门诊: '/patient/OutpatientDetail',
+    住院: '/patient/InpatientDetail',
+    急诊: '/patient/EmergencyDetail',
   }
-  logger.info('View appointment:', id)
+  const patientStore = usePatientStore()
 
   if (routeMap[recordType]) {
+    // 如果是住院记录，转换并存储数据
+    if (recordType === '住院') {
+      const admissionRecordInfo: AdmissionRecord = {
+        admissionRecordID: recordInfo.record_id,
+        residentHealthCardID: recordInfo.ResidentHealthCardID,
+        institutionCode: recordInfo.InstitutionCode,
+        admissionNumber: recordInfo.admissionNumber,
+        admissionConditionCode: '', // 如果原数据没有这个字段，可以留空或根据业务需求处理
+        totalHospitalizationCost: recordInfo.total_hospitalization_cost,
+        diagnosisDate: recordInfo.DiagnosisDate,
+      }
+      patientStore.setCurrentAdmissionRecord(admissionRecordInfo)
+    }
+
     logger.info('跳转到', routeMap[recordType])
-    router.push({
-      name: routeMap[recordType],
-      params: { id },
-    })
+    router.push({ path: `${routeMap[recordType]}/${id}` })
   } else {
     console.error(`未配置${recordType}类型的路由`)
   }
@@ -204,18 +157,17 @@ function viewRecordDetail(id: number, recordType: RecordType) {
 async function fetchInitialRecords() {
   try {
     const data = await getInpatientRecordList()
-    logger.info(data)
     if (data && Array.isArray(data)) {
       records.value = data.map((item) => ({
         ...item,
         record_type: '住院',
+        record_id: item.admissionRecordID,
         diagnosis: item.diagnosis || '',
         total_hospitalization_cost: item.totalHospitalizationCost,
         ResidentHealthCardID: item.residentHealthCardID,
         InstitutionCode: item.institutionCode,
         DiagnosisDate: item.diagnosisDate,
-        condition: item.condition || '',
-        record_id: item.admissionRecordID,
+        admissionNumber: item.admissionNumber, // 住院号
       }))
     } else {
       records.value = []

@@ -18,27 +18,27 @@
         <div class="header-grid">
           <div class="header-item">
             <span class="label">住院号：</span>
-            <span class="value">{{ inpatientRecord.AdmissionNumber }}</span>
+            <span class="value">{{ inpatientRecord.admissionNumber }}</span>
           </div>
           <div class="header-item">
             <span class="label">入院日期：</span>
-            <span class="value">{{ formatDate(inpatientRecord.DiagnosisDate) }}</span>
+            <span class="value">{{ formatDate(inpatientRecord.diagnosisDate) }}</span>
           </div>
           <div class="header-item">
             <span class="label">健康卡号：</span>
-            <span class="value">{{ inpatientRecord.ResidentHealthCardID }}</span>
+            <span class="value">{{ inpatientRecord.residentHealthCardID }}</span>
           </div>
           <div class="header-item">
             <span class="label">医疗机构：</span>
-            <span class="value">{{ inpatientRecord.InstitutionCode }}</span>
+            <span class="value">{{ inpatientRecord.institutionCode }}</span>
           </div>
           <div class="header-item">
             <span class="label">入院病情：</span>
-            <span class="value">{{ getAdmissionCondition(inpatientRecord.AdmissionConditionCode) }}</span>
+            <span class="value">{{ getAdmissionCondition(inpatientRecord.admissionConditionCode) }}</span>
           </div>
           <div class="header-item highlight">
             <span class="label">住院总费用：</span>
-            <span class="value">¥{{ inpatientRecord.TotalHospitalizationCost.toFixed(2) }}</span>
+            <span class="value">¥{{ inpatientRecord.totalHospitalizationCost.toFixed(2) }}</span>
           </div>
         </div>
       </div>
@@ -96,18 +96,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { usePatientStore, AdmissionRecord } from '@/store/patient'
 import { useRoute, useRouter } from 'vue-router'
+import { getInpatientRecordDetail } from '@/api/patient'
+import { logger } from '@/utils/logger'
 
-interface InpatientRecord {
-  AdmissionRecordID: number
-  ResidentHealthCardID: string
-  InstitutionCode: string
-  AdmissionNumber: string
-  AdmissionConditionCode: string
-  TotalHospitalizationCost: number
-  DiagnosisDate: string
-}
+const patientStore = usePatientStore()
+const inpatientRecord = computed(() => patientStore.currentAdmissionRecord)
+
+const route = useRoute()
+const router = useRouter()
 
 interface CourseRecord {
   AdmissionRecordID: number
@@ -115,75 +114,24 @@ interface CourseRecord {
   RecordDateTime: string
 }
 
-const route = useRoute()
-const router = useRouter()
-
-// 住院记录数据
-const inpatientRecord = ref<InpatientRecord>({
-  AdmissionRecordID: 0,
-  ResidentHealthCardID: '',
-  InstitutionCode: '',
-  AdmissionNumber: '',
-  AdmissionConditionCode: '',
-  TotalHospitalizationCost: 0,
-  DiagnosisDate: '',
-})
-
 // 病程记录数据
 const courseRecords = ref<CourseRecord[]>([])
 
 // 从路由参数获取记录ID
 const recordId = ref(Number(route.params.id))
 
-// 模拟API获取住院记录详情
-const fetchInpatientRecord = async (id: number) => {
-  try {
-    // 模拟数据
-    const mockRecord: InpatientRecord = {
-      AdmissionRecordID: id,
-      ResidentHealthCardID: '123456789012345678',
-      InstitutionCode: 'B987654321',
-      AdmissionNumber: 'ZY2023052001',
-      AdmissionConditionCode: '2',
-      TotalHospitalizationCost: 12568.5,
-      DiagnosisDate: '2023-05-20',
-    }
-
-    inpatientRecord.value = mockRecord
-
-    // 获取病程记录
-    await fetchCourseRecords(id)
-  } catch (error) {
-    console.error('获取住院记录失败:', error)
-  }
-}
-
-// 模拟API获取病程记录
+/**
+ * 获取病程信息
+ * @param recordId 住院记录ID
+ */
 const fetchCourseRecords = async (recordId: number) => {
   try {
-    // 模拟数据
-    const mockRecords: CourseRecord[] = [
-      {
-        AdmissionRecordID: recordId,
-        RecordContent:
-          '患者因"反复头晕、头痛3年，加重1周"入院。查体：BP 160/100mmHg，神清，双肺呼吸音清，心率80次/分，律齐。初步诊断：高血压3级，极高危组。给予降压、改善循环等治疗。',
-        RecordDateTime: '2023-05-20T10:30:00',
-      },
-      {
-        AdmissionRecordID: recordId,
-        RecordContent:
-          '今日查房，患者诉头晕症状较前减轻。血压140/90mmHg。调整降压药物剂量，继续观察病情变化。',
-        RecordDateTime: '2023-05-21T09:15:00',
-      },
-      {
-        AdmissionRecordID: recordId,
-        RecordContent:
-          '患者病情稳定，血压控制在130/85mmHg左右。各项检查结果回报基本正常。拟明日安排出院。',
-        RecordDateTime: '2023-05-25T16:45:00',
-      },
-    ]
-
-    courseRecords.value = mockRecords
+    const data = await getInpatientRecordDetail(recordId)
+    courseRecords.value = data.map((item: any) => ({
+      AdmissionRecordID: item.admissionRecordID,
+      RecordContent: item.recordContent,
+      RecordDateTime: item.recordDateTime,
+    }))
   } catch (error) {
     console.error('获取病程记录失败:', error)
   }
@@ -241,7 +189,7 @@ const goBack = () => {
 
 // 组件挂载时获取数据
 onMounted(() => {
-  fetchInpatientRecord(recordId.value)
+  fetchCourseRecords(recordId.value)
 })
 </script>
 

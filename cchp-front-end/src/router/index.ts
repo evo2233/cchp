@@ -41,7 +41,7 @@ const patientRoutes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/patient/outpatient-detail",
+    path: "/patient/OutpatientDetail/:id",
     name: "OutpatientDetail",
     component: () => import("@/views/patient/OutpatientDetail.vue"),
     meta: {
@@ -50,7 +50,7 @@ const patientRoutes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/patient/inpatient-detail",
+    path: "/patient/InpatientDetail/:id",
     name: "InpatientDetail",
     component: () => import("@/views/patient/InpatientDetail.vue"),
     meta: {
