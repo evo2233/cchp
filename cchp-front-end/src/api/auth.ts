@@ -43,6 +43,7 @@ const getUserInfo = async () => {
     authStore.account.realname = data.realname;
     authStore.account.gendercode = data.gendercode;
     authStore.account.birthdate = data.birthdate;
+    authStore.account.role = "user";
   } catch (error) {
     logger.error(error);
   }
@@ -114,4 +115,36 @@ export const RegisterRequest = async (registerUser: RegisterUser) => {
   } catch (error) {
     throw error;
   }
+};
+
+/**
+ * 医生登录凭证类型
+ */
+export type DoctorLoginCredentials = {
+  institutionCode: string; // 医疗机构编号
+  institutionName: string; // 医疗机构名称
+};
+
+/**
+ * 医生登录服务
+ */
+export const DoctorLoginRequrest = async (
+  credentials: DoctorLoginCredentials
+) => {
+  try {
+    // 获取后端响应数据
+    const { data } = await request.post<string>("/doctor/login", {
+      institutionCode: credentials.institutionCode,
+      institutionName: credentials.institutionName,
+    });
+
+    logger.info("登陆成功，获取的token", data);
+
+    // 存储token
+    const authStore = useAuthStore();
+    authStore.token = data;
+    authStore.institutionName = credentials.institutionName;
+    authStore.institutionCode = credentials.institutionCode;
+    authStore.account.role = "doctor";
+  } catch (error) {}
 };

@@ -1,7 +1,7 @@
 <template>
   <!-- 页面的标题 -->
-  <PageTitle :pageTitle="'患者仪表盘'"
-             :currentPage="'患者仪表盘'"
+  <PageTitle :pageTitle="'医生仪表盘'"
+             :currentPage="'医生仪表盘'"
              :homeText="'主页'"
              :homeLink="'index.html'"
              :backgroundPattern1="shape70"

@@ -67,7 +67,7 @@ const displayName = computed(() => authStore.account?.realname || '访客');
 const userAvatar = computed(() => authStore.account?.avatar || defaultAvatar);
 const unreadCount = computed(() => authStore.account?.unreadNotifications || 0);
 const greetingText = computed(() =>
-  isAuthenticated.value ? `你好, ${displayName.value}` : '请登录'
+  isAuthenticated.value ? '您好' : '请登录'
 );
 
 // 菜单选项

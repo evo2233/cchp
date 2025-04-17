@@ -6,6 +6,8 @@ import {
   LoginCredentials,
   RegisterRequest,
   RegisterUser,
+  DoctorLoginCredentials,
+  DoctorLoginRequrest,
 } from "@/api/auth";
 import { showSuccess } from "@/utils/message";
 import { safeRedirect } from "@/router/navigation";
@@ -22,6 +24,8 @@ interface Account {
 // 身份认证状态
 interface AuthState {
   account: Account | null;
+  institutionName: string | null;
+  institutionCode: string | null;
   token: string | null;
   isLoading: boolean;
   error: string | null;
@@ -38,6 +42,8 @@ export const useAuthStore = defineStore("auth", {
       birthdate: "",
       role: "user",
     },
+    institutionName: "",
+    institutionCode: "",
     token: null, // 有token就是身份认证成功
     isLoading: false,
     error: null,
@@ -97,6 +103,24 @@ export const useAuthStore = defineStore("auth", {
     // 检查登陆状态
     checkAuth() {
       return !!this.token;
+    },
+    // 医生登陆函数
+    async Doctorlogin(credentials: DoctorLoginCredentials) {
+      try {
+        this.isLoading = true;
+        this.error = null;
+
+        await DoctorLoginRequrest(credentials); // 向后端发送请求
+
+        showSuccess("登陆成功");
+        safeRedirect("/doctor");
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : "登录失败";
+        logger.error("医生登录失败", {});
+        throw error;
+      } finally {
+        this.isLoading = false;
+      }
     },
   },
 });

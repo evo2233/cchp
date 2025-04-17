@@ -12,37 +12,26 @@
         <div class="content-box">
           <div class="title-box">
             <h3>Login as Doctor</h3>
-            <a href="register-page.html">Not a Doctor?</a>
+            <router-link to="/login">Not a Doctor?</router-link>
           </div>
           <!-- 登陆表单 -->
           <div class="inner">
             <!-- 使用handleLogin函数处理登陆登录事件 -->
-            <form @submit.prevent="handleLogin"
+            <form @submit.prevent="handleDoctorLogin"
                   method="post"
                   class="registration-form">
               <div class="row clearfix">
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                  <label>Identity</label>
+                  <label>医疗机构名称</label>
                   <input type="identity"
-                         v-model="form.identity"
-                         placeholder="Enter your ID" />
+                         v-model="doctorForm.institutionName"
+                         placeholder="请输入医疗机构名称" />
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                  <label>Realname</label>
+                  <label>医疗机构编号</label>
                   <input type="realname"
-                         v-model="form.realname"
-                         placeholder="Enter your realname" />
-                </div>
-                <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                  <label>Password</label>
-                  <input type="password"
-                         v-model="form.password"
-                         placeholder="Your password" />
-                </div>
-                <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                  <div class="forgot-passowrd clearfix">
-                    <a href="login.html">Forget Password?</a>
-                  </div>
+                         v-model="doctorForm.institutionCode"
+                         placeholder="请输入医疗机构编号" />
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group message-btn">
                   <button type="submit"
@@ -81,11 +70,10 @@ import { useAuthStore } from '@/store/auth'
 import { navigateTo, safeRedirect } from '@/router/navigation'
 import { showError, showSuccess } from '@/utils/message'
 
-// 表单数据
-const form = reactive({
-  identity: '',
-  realname: '',
-  password: '',
+// 医生登录表单数据
+const doctorForm = reactive({
+  institutionCode: '',
+  institutionName: '',
 })
 
 // 登录状态和错误信息
@@ -95,18 +83,18 @@ const errorMessage = ref('')
 // 使用auth store
 const authStore = useAuthStore()
 
-const handleLogin = async () => {
-  if (!form.identity || !form.realname || !form.password) {
+// 医生登录处理
+const handleDoctorLogin = async () => {
+  // 验证所有字段
+  if (!doctorForm.institutionCode || !doctorForm.institutionName) {
     const missingFields = []
-    if (!form.identity) missingFields.push('身份证号')
-    if (!form.realname) missingFields.push('姓名')
-    if (!form.password) missingFields.push('密码')
+    if (!doctorForm.institutionCode) missingFields.push('医疗机构名称')
+    if (!doctorForm.institutionName) missingFields.push('医疗机构编号')
 
     const errorMessage = `请填写完整的登录信息，缺少：${missingFields.join(
       '、'
     )}`
     showError(errorMessage)
-    logger.error('登录表单验证失败', { missingFields, form })
     return
   }
 
@@ -115,10 +103,9 @@ const handleLogin = async () => {
     errorMessage.value = ''
 
     // 调用auth store的登录方法
-    await authStore.login({
-      identity: form.identity,
-      realname: form.realname,
-      password: form.password,
+    await authStore.Doctorlogin({
+      institutionCode: doctorForm.institutionCode,
+      institutionName: doctorForm.institutionName,
     })
   } catch (error) {
     errorMessage.value = error.message || '登录失败，请重试'

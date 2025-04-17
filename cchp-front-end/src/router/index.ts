@@ -18,8 +18,14 @@ const publicRoutes: Array<RouteRecordRaw> = [
   {
     path: "/login",
     name: "Login",
-    component: () => import("@/views/auth/LoginView.vue"),
+    component: () => import("@/views/auth/LoginView_User.vue"),
     meta: { title: "用户登录", guestOnly: true },
+  },
+  {
+    path: "/login-doctor",
+    name: "LoginDoctor",
+    component: () => import("@/views/auth/LoginView_Doctor.vue"),
+    meta: { title: "医生登录", guestOnly: true },
   },
   {
     path: "/register",
@@ -36,7 +42,7 @@ const patientRoutes: Array<RouteRecordRaw> = [
     name: "PatientDashboard",
     component: () => import("@/views/patient/Dashboard.vue"),
     meta: {
-      title: "门诊记录表",
+      title: "患者仪表盘",
       requiredRole: "patient",
     },
   },
@@ -65,32 +71,20 @@ const doctorRoutes: Array<RouteRecordRaw> = [
   {
     path: "/doctor",
     name: "DoctorDashboard",
-    component: PlaceholderView,
+    component: () => import("@/views/doctor/Dashboard.vue"),
     meta: {
-      title: "医生工作台",
+      title: "医生仪表盘",
       requiredRole: "doctor",
-      breadcrumb: ["医生门户"],
     },
-    children: [
-      {
-        path: "patients",
-        name: "PatientManagement",
-        component: PlaceholderView,
-        meta: {
-          title: "患者管理",
-          breadcrumb: ["医生门户", "我的患者"],
-        },
-      },
-      {
-        path: "schedule",
-        name: "Schedule",
-        component: PlaceholderView,
-        meta: {
-          title: "排班管理",
-          breadcrumb: ["医生门户", "工作排班"],
-        },
-      },
-    ],
+  },
+  {
+    path: "/doctor/patient/InpatientDetail/:id",
+    name: "DoctorInpatientDetail",
+    component: () => import("@/views/doctor/InpatientDetail.vue"),
+    meta: {
+      title: "患者住院记录详情",
+      requiredRole: "doctor",
+    },
   },
 ];
 
