@@ -3,11 +3,12 @@ package org.example.demo.service;
 import org.example.demo.model.entity.InpatientRecord;
 import org.example.demo.model.entity.CourseRecordDetail;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface InpatientService {
     // 插入住院记录
-    int insertInpatientRecord(InpatientRecord record, String identity);
+    int insertInpatientRecord(InpatientRecord record, String identity) throws Exception;
 
     // 插入病程记录
     int insertCourseRecordDetail(CourseRecordDetail detail);

@@ -1,6 +1,6 @@
 package org.example.demo.controller;
 
-import org.example.demo.authentication.ArgumentResolver;
+import org.example.demo.common.ArgumentResolver;
 import org.example.demo.model.entity.InpatientRecord;
 import org.example.demo.model.entity.CourseRecordDetail;
 import org.example.demo.service.InpatientService;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,11 +23,16 @@ public class InpatientController {
     @PostMapping("/record")
     public ResponseEntity<?> insertInpatientRecord(@RequestBody InpatientRecord record,
                                                    @ArgumentResolver.PatientIdentity String identity) {
-        int result = inpatientService.insertInpatientRecord(record, identity);
-        if (result > 0) {
-            return ResponseEntity.ok().body("住院记录添加成功");
+        try{
+            int result = inpatientService.insertInpatientRecord(record, identity);
+            if (result > 0) {
+                return ResponseEntity.ok().body("住院记录添加成功");
+            }
+            return ResponseEntity.badRequest().body("住院记录添加失败");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("住院记录添加失败："+e);
         }
-        return ResponseEntity.badRequest().body("住院记录添加失败");
     }
 
     // 插入病程记录
@@ -72,7 +78,7 @@ public class InpatientController {
         return ResponseEntity.badRequest().body("住院记录更新失败");
     }
 
-        // 修改病程记录
+    // 修改病程记录
     @PutMapping("/course-record")
     public ResponseEntity<?> updateCourseRecordDetail(@RequestBody CourseRecordDetail detail) {
         int result = inpatientService.updateCourseRecordDetail(detail);

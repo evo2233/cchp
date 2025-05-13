@@ -1,6 +1,6 @@
 package org.example.demo.controller;
 
-import org.example.demo.authentication.ArgumentResolver;
+import org.example.demo.common.ArgumentResolver;
 import org.example.demo.model.CommonResponse;
 import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;

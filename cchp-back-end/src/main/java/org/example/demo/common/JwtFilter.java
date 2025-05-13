@@ -1,4 +1,4 @@
-package org.example.demo.authentication;
+package org.example.demo.common;
 
 import lombok.extern.slf4j.Slf4j;
 

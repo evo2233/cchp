@@ -50,7 +50,6 @@ src/test/java/org/fisco/bcos/temp/*
 .classpath
 .project
 .settings/
-bin/
 
 # Environment files
 src/main/resources/application-dev.properties

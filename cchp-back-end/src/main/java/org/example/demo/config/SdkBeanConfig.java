@@ -78,6 +78,12 @@ public class SdkBeanConfig {
             adminService.initializeAdmin(deployerAddress);
         }
 
+        if(contractConfig.getInpatientContractAddress() == null || contractConfig.getInpatientContractAddress().isEmpty()) {
+            String address = deployContract(client, ContractConstants.InpatientAbi, ContractConstants.InpatientBinary);
+            contractConfig.setInpatientContractAddress(address);
+            saveContractAddresses();
+        }
+
         return client;
     }
 
@@ -96,6 +102,8 @@ public class SdkBeanConfig {
                             contractConfig.setPatientContractAddress(value);
                         } else if ("institutionAddress".equals(key)) {
                             contractConfig.setInstitutionContractAddress(value);
+                        } else if ("inpatientAddress".equals(key)) {
+                            contractConfig.setInpatientContractAddress(value);
                         }
                     }
                 }
@@ -110,6 +118,7 @@ public class SdkBeanConfig {
             StringBuilder content = new StringBuilder();
             content.append("patientAddress=").append(contractConfig.getPatientContractAddress()).append("\n");
             content.append("institutionAddress=").append(contractConfig.getInstitutionContractAddress()).append("\n");
+            content.append("inpatientAddress=").append(contractConfig.getInpatientContractAddress()).append("\n");
 
             try (FileWriter writer = new FileWriter(CONTRACT_ADDRESS_FILE)) {
                 writer.write(content.toString());
