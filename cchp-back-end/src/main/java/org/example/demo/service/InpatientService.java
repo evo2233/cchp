@@ -14,22 +14,19 @@ public interface InpatientService {
     int insertCourseRecordDetail(CourseRecordDetail detail);
 
     // 删除住院记录
-    int deleteInpatientRecord(Integer admissionRecordID);
+    int deleteInpatientRecord(Integer admissionRecordID, String identity) throws Exception;
 
     // 删除病程记录
     int deleteCourseRecordDetail(Integer admissionRecordID, String recordDateTime);
 
     // 修改住院记录
-    int updateInpatientRecord(InpatientRecord record, String identity);
+    int updateInpatientRecord(InpatientRecord record, String identity) throws Exception;
 
     // 修改病程记录
     int updateCourseRecordDetail(CourseRecordDetail detail);
 
     // 根据条件查询住院记录
-    List<InpatientRecord> selectInpatientRecords(String institutionCode, String residentHealthCardID, String diagnosisDate);
-
-    // 根据residentHealthCardID查询住院记录
-    List<InpatientRecord> getInpatientRecords(String identity);
+    List<InpatientRecord> selectInpatientRecords(String institutionCode, String residentHealthCardID, String diagnosisDate) throws Exception;
 
     // 根据admissionRecordID查询病程记录
     List<CourseRecordDetail> getCourseRecordDetails(Integer admissionRecordID);

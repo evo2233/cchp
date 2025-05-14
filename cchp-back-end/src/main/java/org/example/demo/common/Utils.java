@@ -44,9 +44,21 @@ public class Utils {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(record.getBytes(StandardCharsets.UTF_8));
 
+            System.out.println("Hashed: " + new String(hashBytes));
+
             return new Bytes32(hashBytes);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Hash计算失败", e);
         }
+    }
+
+    // 将 Bytes32 对象转为 byte[]，再格式化为十六进制字符串
+    public static String bytes32ToHex(Bytes32 bytes32) {
+        byte[] bytes = bytes32.getValue(); // 获取底层 byte[]
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 }

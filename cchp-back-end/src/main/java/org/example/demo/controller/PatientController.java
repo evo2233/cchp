@@ -71,9 +71,13 @@ public class PatientController {
             @RequestParam(required = false) String residentHealthCardID,
             @RequestParam(required = false) String diagnosisDate,
             @ArgumentResolver.PatientIdentity String identity) {
-        List<InpatientRecord> records = inpatientservice.selectInpatientRecords(
-                institutionCode, identity, diagnosisDate);
-        return ResponseEntity.ok(records);
+        try{
+            List<InpatientRecord> records = inpatientservice.selectInpatientRecords(
+                    institutionCode, identity, diagnosisDate);
+            return ResponseEntity.ok(records);
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 根据住院记录ID查询病程记录
