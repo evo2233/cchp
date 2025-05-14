@@ -1,4 +1,4 @@
-package org.example.demo.authentication;
+package org.example.demo.common;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

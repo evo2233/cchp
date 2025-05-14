@@ -1,6 +1,7 @@
 package org.example.demo.service.impl;
 
-import org.example.demo.authentication.JwtUtils;
+import org.example.demo.common.JwtUtils;
+import org.example.demo.common.Utils;
 import org.example.demo.config.ContractConfig;
 import org.example.demo.constants.ContractConstants;
 import org.example.demo.mapper.PatientMapper;
@@ -23,11 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,7 +112,7 @@ public class PatientServiceImpl implements PatientService {
         String userAddress = userKeyPair.getAddress();
         
         // 保存私钥到文件
-        savePrivateKeyToFile(userKeyPair.getHexPrivateKey(), dto.getIdentity());
+        Utils.savePrivateKeyToFile(userKeyPair.getHexPrivateKey(), dto.getIdentity());
         
         // 将LocalDate转换为字符串格式
         String birthdateStr = dto.getBirthdate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -144,7 +140,7 @@ public class PatientServiceImpl implements PatientService {
 
     public PatientInfoVO getPatientInfo(String identityFile) throws Exception {
         // 从私钥文件中读取私钥
-        String privateKey = readPrivateKeyFromFile(identityFile);
+        String privateKey = Utils.readPrivateKeyFromFile(identityFile);
         if (privateKey == null) {
             throw new RuntimeException("用户私钥不存在");
         }
@@ -178,35 +174,5 @@ public class PatientServiceImpl implements PatientService {
         String birthdate = ((Utf8String) results.get(3)).getValue();
 
         return new PatientInfoVO(identity, realName, genderCode, birthdate);
-    }
-
-    private void savePrivateKeyToFile(String privateKey, String identity) throws IOException {
-        // 创建存储私钥的目录
-        File keyDir = new File("keys");
-        if (!keyDir.exists()) {
-            keyDir.mkdirs();
-        }
-        
-        // 使用身份证号作为文件名
-        File keyFile = new File(keyDir, identity + ".key");
-        try (FileWriter writer = new FileWriter(keyFile)) {
-            writer.write(privateKey);
-        }
-    }
-
-    private String readPrivateKeyFromFile(String identityFile) throws IOException {
-        File keyFile = new File("keys", identityFile + ".key");
-        if (!keyFile.exists()) {
-            return null;
-        }
-        
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(keyFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line);
-            }
-        }
-        return content.toString();
     }
 }

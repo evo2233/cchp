@@ -1,12 +1,10 @@
 package org.example.demo.service.impl;
 
-import org.example.demo.authentication.JwtUtils;
+import org.example.demo.common.JwtUtils;
+import org.example.demo.common.Utils;
 import org.example.demo.config.ContractConfig;
 import org.example.demo.constants.ContractConstants;
-import org.example.demo.model.bo.InstitutionRegisterInputBO;
 import org.example.demo.model.dto.InstitutionDTO;
-import org.example.demo.model.dto.PatientLoginDTO;
-import org.example.demo.model.entity.Patient;
 import org.example.demo.service.InstitutionService;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicArray;
@@ -56,7 +54,7 @@ public class InstitutionServiceImpl implements InstitutionService {
             String institutionAddress = KeyPair.getAddress();
 
             // 保存私钥到文件
-            savePrivateKeyToFile(KeyPair.getHexPrivateKey(), input.getInstitutionCode());
+            Utils.savePrivateKeyToFile(KeyPair.getHexPrivateKey(), input.getInstitutionCode());
 
             List<Object> params = new ArrayList<>();
             params.add(input.getInstitutionCode());
@@ -191,39 +189,9 @@ public class InstitutionServiceImpl implements InstitutionService {
         return token;
     }
 
-    private void savePrivateKeyToFile(String privateKey, String identity) throws IOException {
-        // 创建存储私钥的目录
-        File keyDir = new File("keys");
-        if (!keyDir.exists()) {
-            keyDir.mkdirs();
-        }
-
-        // 使用机构ID作为文件名
-        File keyFile = new File(keyDir, identity + ".key");
-        try (FileWriter writer = new FileWriter(keyFile)) {
-            writer.write(privateKey);
-        }
-    }
-
-    private String readPrivateKeyFromFile(String identityFile) throws IOException {
-        File keyFile = new File("keys", identityFile + ".key");
-        if (!keyFile.exists()) {
-            return null;
-        }
-
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(keyFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                content.append(line);
-            }
-        }
-        return content.toString();
-    }
-
     private String getInstitutionAddress(String identityFile) throws IOException {
         // 从私钥文件中读取私钥
-        String privateKey = readPrivateKeyFromFile(identityFile);
+        String privateKey = Utils.readPrivateKeyFromFile(identityFile);
         if (privateKey == null) {
             throw new RuntimeException("用户私钥不存在");
         }

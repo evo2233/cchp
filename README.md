@@ -18,3 +18,20 @@
 - Java Sdk： [JavaSdk文档](https://fisco-bcos-doc.readthedocs.io/zh_CN/latest/docs/develop/sdk/java_sdk/index.html)。
 - SpringBoot文档： [Spring Boot](https://spring.io/guides/gs/spring-boot/)。
 - Maven工程示例：[maven示例](https://github.com/FISCO-BCOS/spring-boot-crud)。
+
+
+
+## 新合约所需配置
+
+```
+\cchp-back-end\src\main\java\org.example.demo
+|	\config
+	|	\ContractConfig一处
+	|	\SdkBeanConfig三处
+		|public Client client()
+		|private void loadContractAddresses()
+		|private void saveContractAddresses()
+|	\constants
+	|	\ContractConstants两处
+```
+
