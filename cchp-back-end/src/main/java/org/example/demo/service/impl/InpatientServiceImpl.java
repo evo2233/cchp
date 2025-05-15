@@ -9,7 +9,6 @@ import org.example.demo.mapper.InpatientMapper;
 import org.example.demo.service.InpatientService;
 import org.fisco.bcos.sdk.v3.client.Client;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
-import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
 import org.fisco.bcos.sdk.v3.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.v3.crypto.keypair.ECDSAKeyPair;
@@ -20,8 +19,11 @@ import org.fisco.bcos.sdk.v3.transaction.model.dto.TransactionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Service
+@Slf4j
 public class InpatientServiceImpl implements InpatientService {
 
     @Autowired
@@ -108,6 +111,8 @@ public class InpatientServiceImpl implements InpatientService {
     public int insertInpatientRecord(InpatientRecord record, String identity) throws Exception {
         record.setDiagnosisDate(new Date());
         record.setInstitutionCode(identity);
+        BigDecimal oldCost = record.getTotalHospitalizationCost();
+        record.setTotalHospitalizationCost(oldCost.setScale(2, RoundingMode.HALF_UP));
 
         int rowcount = inpatientMapper.insertInpatientRecord(record);
         if(rowcount == 1) {
@@ -119,7 +124,7 @@ public class InpatientServiceImpl implements InpatientService {
 
             executeBlockchainTransaction(institutionTxProcessor, "createRecord", params);
             
-            System.out.println("Hash 上链成功！记录ID: " + record.getAdmissionRecordID());
+            log.info("Hash 上链成功！记录ID: {}", record.getAdmissionRecordID());
         }
         return rowcount;
     }
@@ -178,6 +183,8 @@ public class InpatientServiceImpl implements InpatientService {
     public int updateInpatientRecord(InpatientRecord record, String identity) throws Exception {
         record.setDiagnosisDate(new Date());
         record.setInstitutionCode(identity);  // 机构自动完成签名
+        BigDecimal oldCost = record.getTotalHospitalizationCost();
+        record.setTotalHospitalizationCost(oldCost.setScale(2, RoundingMode.HALF_UP));
 
         int rowcount = inpatientMapper.updateInpatientRecord(record);
         if (rowcount > 0) {
@@ -221,16 +228,15 @@ public class InpatientServiceImpl implements InpatientService {
         Bytes32 chainHash = (Bytes32) results.get(0);
         String localHashString = Utils.bytes32ToHex(localHash);
         String chainHashString = Utils.bytes32ToHex(chainHash);
-        System.out.println("==数据库记录==");
-        System.out.println("记录ID: " + record.getAdmissionRecordID());
-        System.out.println("拼接内容: " + rawString);
-        System.out.println("本地计算哈希: " + localHashString);
-
-        System.out.println("==链上记录==");
-        System.out.println("链上哈希: " + chainHashString);
-        System.out.println("时间戳: " + results.get(1).getValue());
-        System.out.println("机构地址: " + results.get(2).getValue());
-        System.out.println("是否有效: " + results.get(3).getValue());
+        log.info("==数据库记录==");
+        log.info("记录ID: {}", record.getAdmissionRecordID());
+        log.info("拼接内容: {}", rawString);
+        log.info("本地计算哈希: {}", localHashString);
+        log.info("==链上记录==");
+        log.info("链上哈希: {}", chainHashString);
+        log.info("时间戳: {}", results.get(1).getValue());
+        log.info("机构地址: {}", results.get(2).getValue());
+        log.info("是否有效: {}", results.get(3).getValue());
 
         return localHashString.equals(chainHashString);
     }
