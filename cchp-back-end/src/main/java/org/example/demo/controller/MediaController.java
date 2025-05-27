@@ -75,11 +75,19 @@ public class MediaController {
     @PatchMapping("/imaging/{id}")
     public ResponseEntity<CommonResponse> updateImage(
             @PathVariable String id,
-            @RequestBody ImageDTO imageDTO,
+            @RequestParam(value = "residentID", required = false) String residentID,
+            @RequestParam(value = "examDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date examDate,
+            @RequestParam(value = "examType", required = false) String examType,
+            @RequestParam(value = "description", required = false) String description,
             @RequestParam("file") MultipartFile file,
             @ArgumentResolver.PatientIdentity String identity
     ) {
         try{
+            ImageDTO imageDTO = new ImageDTO();
+            imageDTO.setResidentID(residentID);
+            imageDTO.setExamDate(examDate);
+            imageDTO.setExamType(examType);
+            imageDTO.setDescription(description);
             return ResponseEntity.ok(CommonResponse.ok(mediaService.updateMedicalImaging(id, imageDTO, identity, file)));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(CommonResponse.fail("400", e));
