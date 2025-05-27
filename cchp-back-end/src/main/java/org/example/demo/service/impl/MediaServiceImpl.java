@@ -1,6 +1,7 @@
 package org.example.demo.service.impl;
 
 import com.mongodb.client.result.DeleteResult;
+import org.bson.types.ObjectId;
 import org.example.demo.model.dto.ImageDTO;
 import org.example.demo.model.dto.ImageVO;
 import org.example.demo.model.entity.MedicalImaging;
@@ -102,10 +103,9 @@ public class MediaServiceImpl implements MediaService {
             return false;
         }
 
-        Query query = new Query(Criteria.where("_id").is(id));
+        Query query = new Query(Criteria.where("_id").is(new ObjectId(id)));
         // 删除匹配查询条件的文档
         DeleteResult result = mongoTemplate.remove(query, MedicalImaging.class);
-
         // 返回被删除的文档数量。
         return result.getDeletedCount() > 0;
     }
@@ -140,8 +140,8 @@ public class MediaServiceImpl implements MediaService {
     }
 
     private boolean noPermission(String id, String instCode){
-        String originCost = queryImageDetail(id).getInstitutionCode();
-        return !originCost.equals(instCode);
+        String originCode = queryImageDetail(id).getInstitutionCode();
+        return !originCode.equals(instCode);
     }
 
     private Update constructUpdate(ImageDTO imageDTO) {
