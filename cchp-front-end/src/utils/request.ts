@@ -74,6 +74,12 @@ service.interceptors.request.use(
       console.log("最终请求头:", config.headers); // 检查是否被覆盖
     }
 
+    if (config.data instanceof FormData) {
+      console.log("Request with FormData:", [...config.data.entries()]);
+    } else {
+      console.log("Request data:", config.data);
+    }
+
     return config;
   },
   (error) => {

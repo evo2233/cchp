@@ -12,7 +12,7 @@ const publicRoutes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Home",
-    component: PlaceholderView,
+    redirect: "/login",
     meta: { title: "医疗数据共享平台" },
   },
   {
@@ -93,13 +93,13 @@ const errorRoutes: Array<RouteRecordRaw> = [
   {
     path: "/403",
     name: "Forbidden",
-    component: PlaceholderView,
+    redirect: "/login",
     meta: { title: "无权访问" },
   },
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
-    component: PlaceholderView,
+    redirect: "/login",
     meta: { title: "页面不存在" },
   },
 ];

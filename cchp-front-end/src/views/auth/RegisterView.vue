@@ -48,14 +48,6 @@
                          required>
                 </div>
                 <div class="col-lg-12 col-md-12 col-sm-12 form-group">
-                  <label>Birthdate</label>
-                  <input v-model="form.birthdate"
-                         type="date"
-                         name="birthdate"
-                         placeholder="Enter your BirthDate"
-                         required />
-                </div>
-                <div class="col-lg-12 col-md-12 col-sm-12 form-group">
                   <label>Password</label>
                   <input v-model="form.password"
                          type="password"
@@ -119,7 +111,6 @@ const form = reactive({
   identity: '',
   realname: '',
   gendercode: '',
-  birthdate: '',
   password: '',
   confirmPassword: '',
 })
@@ -136,7 +127,6 @@ const handleRegister = async () => {
     !form.identity ||
     !form.realname ||
     !form.gendercode ||
-    !form.birthdate ||
     !form.password ||
     !form.confirmPassword
   ) {
@@ -161,7 +151,6 @@ const handleRegister = async () => {
       identity: form.identity, // 身份（user/doctor）
       realname: form.realname, // 真实姓名
       gendercode: form.gendercode, // 性别
-      birthdate: form.birthdate, // 出生日期
       password: form.password,
       confirmPassword: form.confirmPassword,
       role: 'user',
