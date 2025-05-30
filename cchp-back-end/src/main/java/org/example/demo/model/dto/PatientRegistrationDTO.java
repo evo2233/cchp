@@ -22,7 +22,6 @@ public class PatientRegistrationDTO {
     @Pattern(regexp = "^[FM]$", message = "性别代码必须是 F 或 M")
     private String gendercode;
 
-    @NotNull(message = "出生日期不能为空")
     private LocalDate birthdate; // yyyy-MM-dd
 
     @NotBlank(message = "密码不能为空")

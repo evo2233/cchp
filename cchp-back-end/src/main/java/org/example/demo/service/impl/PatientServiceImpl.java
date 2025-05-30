@@ -22,8 +22,10 @@ import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
 import org.fisco.bcos.sdk.v3.codec.datatypes.Utf8String;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +39,7 @@ public class PatientServiceImpl implements PatientService {
     private PatientMapper patientMapper;
 
     @Override
+    @Transactional
     public void addPatient(PatientRegistrationDTO patientdto) throws Exception {
         Patient patient = patientMapper.getPatient(
                 patientdto.getIdentity(),
@@ -52,6 +55,10 @@ public class PatientServiceImpl implements PatientService {
         _patient.setRealname(patientdto.getRealname());
         _patient.setPassword(patientdto.getPassword());
         patientMapper.insertPatient(_patient);
+
+        // 提取出生日期
+        String id = patientdto.getIdentity();
+        patientdto.setBirthdate(extractBirthdateFromId(id));
 
         registerPatient(patientdto);
     }
@@ -83,6 +90,17 @@ public class PatientServiceImpl implements PatientService {
             throw new Exception("Error: patient not found");
         }
         return getPatientInfo(identity);
+    }
+
+    private static LocalDate extractBirthdateFromId(String idCardNumber) {
+        if (idCardNumber == null || idCardNumber.length() != 18) {
+            throw new IllegalArgumentException("身份证号码必须为18位");
+        }
+
+        String birthdateStr = idCardNumber.substring(6, 14); // 提取出生日期部分（yyyyMMdd）
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return LocalDate.parse(birthdateStr, formatter);
     }
 
     /*

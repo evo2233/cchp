@@ -43,6 +43,7 @@
 \cchp-back-end\src\main\java\org.example.demo
 |	\config
 	|	\WenConfig
+	\common
 	|	\JwtFilter
 ```
 
