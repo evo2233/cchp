@@ -97,4 +97,8 @@
         ORDER BY RecordDateTime DESC
     </select>
 
+    <select id="selectInpatientRecordById" resultType="org.example.demo.model.entity.InpatientRecord">
+        SELECT * FROM InpatientRecord WHERE AdmissionRecordID = #{admissionRecordID}
+    </select>
+
 </mapper> 

@@ -8,4 +8,5 @@ import org.springframework.context.annotation.Configuration;
 public class ContractConfig {
     private String patientContractAddress = "";
     private String institutionContractAddress = "";
+    private String inpatientContractAddress = "";
 }

@@ -39,4 +39,7 @@ public interface InpatientMapper {
 
     // 更新住院记录的DiagnosisDate
     int updateDiagnosisDate(@Param("admissionRecordID") Integer admissionRecordID, @Param("diagnosisDate") String diagnosisDate);
+
+    // 根据ID查询住院记录
+    InpatientRecord selectInpatientRecordById(Integer admissionRecordID);
 }

@@ -1,6 +1,6 @@
 package org.example.demo.controller;
 
-import org.example.demo.authentication.ArgumentResolver;
+import org.example.demo.common.ArgumentResolver;
 import org.example.demo.model.CommonResponse;
 import org.example.demo.model.dto.PatientLoginDTO;
 import org.example.demo.model.dto.PatientRegistrationDTO;
@@ -71,9 +71,13 @@ public class PatientController {
             @RequestParam(required = false) String residentHealthCardID,
             @RequestParam(required = false) String diagnosisDate,
             @ArgumentResolver.PatientIdentity String identity) {
-        List<InpatientRecord> records = inpatientservice.selectInpatientRecords(
-                institutionCode, identity, diagnosisDate);
-        return ResponseEntity.ok(records);
+        try{
+            List<InpatientRecord> records = inpatientservice.selectInpatientRecords(
+                    institutionCode, identity, diagnosisDate);
+            return ResponseEntity.ok(records);
+        } catch(Exception e){
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 根据住院记录ID查询病程记录

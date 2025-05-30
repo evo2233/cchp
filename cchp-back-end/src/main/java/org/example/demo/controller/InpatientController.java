@@ -1,6 +1,6 @@
 package org.example.demo.controller;
 
-import org.example.demo.authentication.ArgumentResolver;
+import org.example.demo.common.ArgumentResolver;
 import org.example.demo.model.entity.InpatientRecord;
 import org.example.demo.model.entity.CourseRecordDetail;
 import org.example.demo.service.InpatientService;
@@ -22,11 +22,15 @@ public class InpatientController {
     @PostMapping("/record")
     public ResponseEntity<?> insertInpatientRecord(@RequestBody InpatientRecord record,
                                                    @ArgumentResolver.PatientIdentity String identity) {
-        int result = inpatientService.insertInpatientRecord(record, identity);
-        if (result > 0) {
-            return ResponseEntity.ok().body("住院记录添加成功");
+        try{
+            int result = inpatientService.insertInpatientRecord(record, identity);
+            if (result > 0) {
+                return ResponseEntity.ok().body("住院记录添加成功");
+            }
+            return ResponseEntity.badRequest().body("住院记录添加失败");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("住院记录添加失败："+e);
         }
-        return ResponseEntity.badRequest().body("住院记录添加失败");
     }
 
     // 插入病程记录
@@ -41,12 +45,17 @@ public class InpatientController {
 
     // 删除住院记录
     @DeleteMapping("/record/{admissionRecordID}")
-    public ResponseEntity<?> deleteInpatientRecord(@PathVariable Integer admissionRecordID) {
-        int result = inpatientService.deleteInpatientRecord(admissionRecordID);
-        if (result > 0) {
-            return ResponseEntity.ok().body("住院记录删除成功");
+    public ResponseEntity<?> deleteInpatientRecord(@PathVariable Integer admissionRecordID,
+                                                   @ArgumentResolver.PatientIdentity String identity) {
+        try{
+            int result = inpatientService.deleteInpatientRecord(admissionRecordID, identity);
+            if (result > 0) {
+                return ResponseEntity.ok().body("住院记录删除成功");
+            }
+            return ResponseEntity.badRequest().body("住院记录删除失败");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("住院记录删除失败"+e);
         }
-        return ResponseEntity.badRequest().body("住院记录删除失败");
     }
 
     // 删除病程记录
@@ -65,14 +74,18 @@ public class InpatientController {
     @PutMapping("/record")
     public ResponseEntity<?> updateInpatientRecord(@RequestBody InpatientRecord record,
                                                    @ArgumentResolver.PatientIdentity String identity) {
-        int result = inpatientService.updateInpatientRecord(record, identity);
-        if (result > 0) {
-            return ResponseEntity.ok().body("住院记录更新成功");
+        try{
+            int result = inpatientService.updateInpatientRecord(record, identity);
+            if (result > 0) {
+                return ResponseEntity.ok().body("住院记录更新成功");
+            }
+            return ResponseEntity.badRequest().body("住院记录更新失败");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("住院记录更新失败"+e);
         }
-        return ResponseEntity.badRequest().body("住院记录更新失败");
     }
 
-        // 修改病程记录
+    // 修改病程记录
     @PutMapping("/course-record")
     public ResponseEntity<?> updateCourseRecordDetail(@RequestBody CourseRecordDetail detail) {
         int result = inpatientService.updateCourseRecordDetail(detail);
@@ -88,16 +101,13 @@ public class InpatientController {
             @RequestParam(required = false) String institutionCode,
             @RequestParam(required = false) String residentHealthCardID,
             @RequestParam(required = false) String diagnosisDate) {
-        List<InpatientRecord> records = inpatientService.selectInpatientRecords(
-                institutionCode, residentHealthCardID, diagnosisDate);
-        return ResponseEntity.ok(records);
-    }
-
-    // 根据居民健康卡号查询住院记录
-    @GetMapping("/records/{identity}")
-    public ResponseEntity<List<InpatientRecord>> getInpatientRecords(@PathVariable String identity) {
-        List<InpatientRecord> records = inpatientService.getInpatientRecords(identity);
-        return ResponseEntity.ok(records);
+        try{
+            List<InpatientRecord> records = inpatientService.selectInpatientRecords(
+                    institutionCode, residentHealthCardID, diagnosisDate);
+            return ResponseEntity.ok(records);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     // 根据住院记录ID查询病程记录
