@@ -1,5 +1,7 @@
 # 云链医道（CCHP）
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/evo2233/cchp)
+
 本项目基于Java SDK + Gradle + SpringBoot方式来调用智能合约。后端使用 FISCO 官方提供的 [spring-boot-starter](https://github.com/FISCO-BCOS/spring-boot-starter) 主分支为基础开发。
 
 
