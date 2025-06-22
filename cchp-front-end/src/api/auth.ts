@@ -80,7 +80,6 @@ export type RegisterUser = {
   identity: string; // 身份（user/doctor）
   realname: string; // 真实姓名
   gendercode: string; // 性别
-  birthdate: string; // 出生日期
   password: string;
   confirmPassword: string;
   role: UserRole;
@@ -106,7 +105,6 @@ export const RegisterRequest = async (registerUser: RegisterUser) => {
         realname: registerUser.realname,
         password: registerUser.password,
         gendercode: registerUser.gendercode,
-        birthdate: registerUser.birthdate,
       }
     );
 
