@@ -36,11 +36,16 @@ import PatientMenuSidebar from './components/PatientMenuSidebar.vue';
 import PageTitle from './components/PageTitle.vue';
 import AppointmentTable from './components/RecordTable.vue';
 
+import RecordTable from './components/RecordTable.vue'; // 就诊记录表格
+import ImageTable from './components/ImageTable.vue';   // 影像资料表格（需新建）
+
 export default {
   components: {
     PatientMenuSidebar,
     PageTitle,
-    AppointmentTable
+    AppointmentTable,
+    RecordTable,
+    ImageTable
   },
   data () {
     return {

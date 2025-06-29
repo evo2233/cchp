@@ -119,7 +119,7 @@
       </template>
     </el-dialog>
 
-    <!-- 新增：医疗影像记录卡片列表 -->
+    <!-- 医疗影像记录卡片列表 -->
     <div class="medical-images-section">
 
       <div class="section-header">
@@ -496,11 +496,13 @@ const fetchMedicalImages = async (residentID: string) => {
     const data = await GetMedicalImagesRequest({ residentID })
     console.log('获取到的医疗影像列表后端数据data:', data)
     // 映射接口返回的数据到需要的格式
-    medicalImages.value = data.map((item: any) => ({
-      id: item.id,
-      examType: item.examType,
-      examDate: item.examDate,
-    }))
+    if (data && Array.isArray(data)) {
+      medicalImages.value = data.map((item: any) => ({
+        id: item.id,
+        examType: item.examType,
+        examDate: item.examDate,
+      }))
+    }
     console.log('获取到的医疗影像列表数据:', medicalImages)
   } catch (error) {
     console.error('获取医疗影像失败:', error)
@@ -535,6 +537,7 @@ const openImageDetailDialog = async (imageId: string) => {
       description: detail.description,
       uploadDate: detail.uploadDate,
     }
+
     imageDetailDialogVisible.value = true
   } catch (error) {
     console.error('获取影像详情失败:', error)

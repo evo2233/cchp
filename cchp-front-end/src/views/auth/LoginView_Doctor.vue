@@ -14,6 +14,7 @@
             <h3>Login as Doctor</h3>
             <router-link to="/login">Not a Doctor?</router-link>
           </div>
+
           <!-- 登陆表单 -->
           <div class="inner">
             <!-- 使用handleLogin函数处理登陆登录事件 -->
@@ -56,6 +57,7 @@
               </p>
             </div>
           </div>
+          
         </div>
       </div>
     </div>
